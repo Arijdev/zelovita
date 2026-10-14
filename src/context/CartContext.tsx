@@ -81,7 +81,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             pages: r.pages || 80,
             readingTime: r.reading_time || '2 hours',
             coverImage: r.cover_image_url || r.thumbnail_url || '/images/book_nutrition.jpg',
-            pdfFileName: r.pdf_url || `doc_guide_${r.id}`,
+            pdfFileName: (r.pdf_url as string) || `/pdfs/${r.id}.pdf`,
             badge: r.badge || (r.is_free ? '100% Free Guide 🎁' : "Doctor's Special Edition"),
             badgeColor: r.badge_color || 'emerald',
             description: r.description || '',

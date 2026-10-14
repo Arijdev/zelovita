@@ -28,7 +28,8 @@ export async function GET(request: NextRequest) {
     const { data, error, count } = await query;
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      console.warn('Supabase health_resources table query notice:', error.message);
+      return NextResponse.json({ resources: [], total: 0 });
     }
 
     return NextResponse.json({ resources: data || [], total: count || 0 });

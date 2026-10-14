@@ -122,6 +122,7 @@ export const Hero: React.FC = () => {
                   src="/images/dr_arif.jpg"
                   alt="Dr. Arif Chowdhury - Health Tutor & Cardiometabolic Physician"
                   fill
+                  sizes="(max-width: 768px) 100vw, 450px"
                   className="object-cover object-top group-hover:scale-105 transition-transform duration-700"
                   priority
                 />
@@ -213,6 +214,7 @@ export const Hero: React.FC = () => {
                   src="/images/dr_arif.jpg"
                   alt="Dr. Arif Chowdhury"
                   fill
+                  sizes="96px"
                   className="object-cover"
                 />
               </div>

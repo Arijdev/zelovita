@@ -328,18 +328,7 @@ export const ResourceLibrary: React.FC<ResourceLibraryProps> = ({
 
                       {/* Action Buttons */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {/* Preview PDF Button */}
-                        {resource.pdfFileName && resource.pdfFileName.startsWith('http') && (
-                          <button
-                            onClick={() => setPdfPreviewResource(resource)}
-                            className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold transition-colors sm:col-span-2"
-                          >
-                            <FileText className="w-3.5 h-3.5" />
-                            <span>Preview Full PDF</span>
-                          </button>
-                        )}
-
-                        {/* Button 1: Read Online */}
+                        {/* Button 1: Read Online / Preview */}
                         <button
                           onClick={() => openReader(resource)}
                           className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold transition-colors"

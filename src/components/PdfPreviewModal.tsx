@@ -86,7 +86,7 @@ export const PdfPreviewModal: React.FC<PdfPreviewModalProps> = ({
     
     try {
       const pdfjsLib = await import('pdfjs-dist');
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+      pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
       
       const loadingTask = pdfjsLib.getDocument({ url: pdfUrl });
       const pdfDoc = await loadingTask.promise;
@@ -389,7 +389,7 @@ export const PdfPreviewModal: React.FC<PdfPreviewModalProps> = ({
 export const generateThumbnailFromPdf = async (pdfUrl: string, pageNumber: number = 1): Promise<string | null> => {
   try {
     const pdfjsLib = await import('pdfjs-dist');
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
     
     const loadingTask = pdfjsLib.getDocument({ url: pdfUrl });
     const pdfDoc = await loadingTask.promise;
@@ -422,7 +422,7 @@ export const generateThumbnailFromPdf = async (pdfUrl: string, pageNumber: numbe
 export const generateAllThumbnailsFromPdf = async (pdfUrl: string): Promise<string[]> => {
   try {
     const pdfjsLib = await import('pdfjs-dist');
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
     
     const loadingTask = pdfjsLib.getDocument({ url: pdfUrl });
     const pdfDoc = await loadingTask.promise;

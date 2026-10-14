@@ -57,6 +57,7 @@ export const Footer: React.FC = () => {
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                  suppressHydrationWarning
                   className="w-full p-5 text-left flex items-center justify-between gap-4 font-bold text-sm sm:text-base text-slate-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                 >
                   <span>{faq.question}</span>
@@ -93,10 +94,12 @@ export const Footer: React.FC = () => {
                 placeholder="Enter your email address"
                 value={newsletterEmail}
                 onChange={e => setNewsletterEmail(e.target.value)}
+                suppressHydrationWarning
                 className="flex-1 px-4 py-3 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs border border-white/40 dark:border-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-white shadow-inner"
               />
               <button
                 type="submit"
+                suppressHydrationWarning
                 className="px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2"
               >
                 <span>Subscribe Free</span>

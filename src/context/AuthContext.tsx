@@ -26,7 +26,7 @@ interface AuthContextType {
   // Auth actions
   signInWithPassword: (email: string, password: string) => Promise<{ error: string | null }>;
   signUpWithPassword: (name: string, email: string, password: string, phone?: string) => Promise<{ error: string | null; needsOtp?: boolean }>;
-  verifyOtp: (email: string, token: string) => Promise<{ error: string | null }>;
+  verifyOtp: (email: string, token: string, password?: string, fullName?: string, role?: string) => Promise<{ error: string | null }>;
   signInWithGoogle: () => Promise<{ error: string | null }>;
   signInAsDoctor: (email: string, password: string) => Promise<{ error: string | null }>;
   logout: () => Promise<void>;
@@ -212,57 +212,95 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return { error: null };
   };
 
-  // ── Customer Registration ─────────────────────────────────────────────────────
+  // ── Customer Registration (OTP-based) ──────────────────────────────────────────
   const signUpWithPassword = async (name: string, email: string, password: string, phone?: string): Promise<{ error: string | null; needsOtp?: boolean }> => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: name, phone },
-      },
-    });
+    try {
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, fullName: name, phone }),
+      });
 
-    if (error) return { error: error.message };
+      const data = await response.json();
 
-    // If email confirmation is required (user not immediately signed in)
-    if (data.user && !data.session) {
-      return { error: null, needsOtp: true };
+      if (!response.ok) {
+        return { error: data.error || data.message || 'Signup failed' };
+      }
+
+      if (data.needsOtp) {
+        return { error: null, needsOtp: true };
+      }
+
+      closeAuthModal();
+      return { error: null };
+    } catch (err) {
+      return { error: 'Network error. Please try again.' };
     }
-
-    closeAuthModal();
-    return { error: null };
   };
 
-  // ── OTP Verification (for email confirmation) ─────────────────────────────────
-  const verifyOtp = async (email: string, token: string): Promise<{ error: string | null }> => {
-    const { error } = await supabase.auth.verifyOtp({
-      email,
-      token,
-      type: 'email',
-    });
-    if (error) return { error: error.message };
-    closeAuthModal();
-    return { error: null };
+  // ── OTP Verification (for email confirmation + signup completion) ──────────────
+  const verifyOtp = async (email: string, token: string, password?: string, fullName?: string, role?: string): Promise<{ error: string | null }> => {
+    try {
+      const response = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, token, password, fullName, role }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { error: data.error || data.message || 'Verification failed' };
+      }
+
+      closeAuthModal();
+      return { error: null };
+    } catch (err) {
+      return { error: 'Network error. Please try again.' };
+    }
   };
 
   // ── Google OAuth ──────────────────────────────────────────────────────────────
   const signInWithGoogle = async (): Promise<{ error: string | null }> => {
-    const redirectTo = typeof window !== 'undefined' 
-      ? `${window.location.origin}/auth/callback`
-      : `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`;
-    
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
+    try {
+      const redirectTo = typeof window !== 'undefined' 
+        ? `${window.location.origin}/auth/callback`
+        : `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`;
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         },
-      },
-    });
-    if (error) return { error: error.message };
-    return { error: null };
+      });
+
+      if (error) {
+        console.error('Supabase Google OAuth error:', error);
+        return { 
+          error: error.message.includes('provider is not enabled')
+            ? 'Google Sign-in is not enabled in your Supabase dashboard yet. Please enable Google in Supabase > Authentication > Providers.'
+            : error.message 
+        };
+      }
+
+      if (data?.url && typeof window !== 'undefined') {
+        window.location.href = data.url;
+      }
+
+      return { error: null };
+    } catch (err: unknown) {
+      console.error('Unexpected Google OAuth error:', err);
+      const message = err instanceof Error ? err.message : 'Failed to connect to authentication server';
+      return { 
+        error: message.includes('Failed to fetch') || message.includes('NetworkError')
+          ? 'Cannot reach Supabase Auth server. Please verify NEXT_PUBLIC_SUPABASE_URL in .env.local or use Email/Password sign-in.'
+          : message 
+      };
+    }
   };
 
   // ── Doctor Login ──────────────────────────────────────────────────────────────

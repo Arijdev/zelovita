@@ -39,7 +39,7 @@ export interface HealthResource {
   id: string;
   title: string;
   subtitle: string;
-  category: 'nutrition' | 'longevity' | 'heart' | 'fasting' | 'detox' | 'mental';
+  category: 'nutrition' | 'longevity' | 'heart' | 'fasting' | 'detox' | 'mental' | 'biohacking' | 'sleep';
   isFree: boolean;
   price: number;
   originalPrice?: number;

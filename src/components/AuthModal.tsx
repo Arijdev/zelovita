@@ -196,7 +196,7 @@ export const AuthModal: React.FC = () => {
     e.preventDefault();
     clearErrors();
     setLoading(true);
-    const { error: err } = await verifyOtp(otpEmail, otpCode);
+    const { error: err } = await verifyOtp(otpEmail, otpCode, regPassword, regName, regPhone);
     setLoading(false);
     if (err) setError(err);
   };

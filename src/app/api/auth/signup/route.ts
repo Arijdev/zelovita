@@ -23,15 +23,17 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createSupabaseServerClient();
 
-    const { data, error } = await supabase.auth.signUp({
+    // Send OTP for email verification (6-digit code)
+    const { data, error } = await supabase.auth.signInWithOtp({
       email,
-      password,
       options: {
         data: {
           full_name: fullName || email.split('@')[0],
           role: role || 'customer',
+          is_signup: true,
+          password, // Store password in metadata for later verification
         },
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+        shouldCreateUser: true,
       },
     });
 
@@ -39,18 +41,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    if (data.user && !data.session) {
-      return NextResponse.json({
-        message: 'Please check your email for the verification link',
-        user: data.user,
-        needsVerification: true,
-      });
-    }
-
     return NextResponse.json({
-      message: 'Account created successfully',
-      user: data.user,
-      session: data.session,
+      message: 'A 6-digit verification code has been sent to your email',
+      needsOtp: true,
+      email,
     });
   } catch (error) {
     console.error('Signup error:', error);

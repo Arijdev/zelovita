@@ -47,6 +47,7 @@ export const HEALTH_RESOURCES: HealthResource[] = [
     pages: 184,
     readingTime: "4.5 hours",
     coverImage: "/images/book_nutrition.jpg",
+    pdfFileName: "/pdfs/clinical-nutrition-gut.pdf",
     badge: "Bestseller ★★★★★",
     badgeColor: "emerald",
     description: "An exhaustive clinical guide translating over 400 clinical trials into an actionable step-by-step nutritional framework. Learn which precise prebiotic fibers, polyphenols, and macronutrient timing heal leaky gut, re-balance digestive enzymes, and maximize nutrient bioavailability.",
@@ -124,6 +125,7 @@ export const HEALTH_RESOURCES: HealthResource[] = [
     pages: 210,
     readingTime: "5.2 hours",
     coverImage: "/images/book_longevity.jpg",
+    pdfFileName: "/pdfs/longevity-blueprint.pdf",
     badge: "Masterclass Edition",
     badgeColor: "indigo",
     description: "The definitive scientific manual on biohacking your biological age. Dr. Arif breaks down the 12 Hallmarks of Aging, NAD+ restoration, mitochondrial biogenesis, mTOR vs AMPK cycling, and epigenetic clock reversal.",
@@ -190,6 +192,7 @@ export const HEALTH_RESOURCES: HealthResource[] = [
     pages: 64,
     readingTime: "1.5 hours",
     coverImage: "/images/book_detox.jpg",
+    pdfFileName: "/pdfs/7-day-metabolic-reset.pdf",
     badge: "100% FREE GUIDE 🎁",
     badgeColor: "emerald",
     description: "A completely free, doctor-designed 7-day nutritional kickstart. Designed to eliminate systemic puffiness, calm digestive inflammation, reset your palate away from refined sugar cravings, and ignite metabolic flexibility.",
@@ -255,6 +258,7 @@ export const HEALTH_RESOURCES: HealthResource[] = [
     pages: 78,
     readingTime: "2 hours",
     coverImage: "/images/book_fasting.jpg",
+    pdfFileName: "/pdfs/intermittent-fasting-autophagy.pdf",
     badge: "100% FREE GUIDE 🎁",
     badgeColor: "amber",
     description: "Discover the Nobel Prize-winning science of autophagy. Dr. Arif guides you through custom fasting schedules (16:8, 14:10, 20:4, and OMAD), how to break a fast properly without GI distress, and fasting protocols tailored for men vs. women.",
@@ -321,6 +325,7 @@ export const HEALTH_RESOURCES: HealthResource[] = [
     pages: 195,
     readingTime: "4.8 hours",
     coverImage: "/images/book_heart.jpg",
+    pdfFileName: "/pdfs/cardiovascular-vitality.pdf",
     badge: "Doctor's Choice",
     badgeColor: "rose",
     description: "Cardiovascular disease remains the world's leading killer — yet 90% of it is preventable through lifestyle and targeted nutritional medicine. Dr. Arif demystifies cholesterol, advanced lipid testing (ApoB, Lp(a), CAC score), nitric oxide synthesis, and blood pressure regulation.",
@@ -371,6 +376,82 @@ export const HEALTH_RESOURCES: HealthResource[] = [
         "Take high-potency Omega-3 (2g combined EPA/DHA with high EPA)",
         "Combine Vitamin D3 (5000 IU) with Vitamin K2 MK-7 (100-200 mcg)",
         "Walk 8,000 to 10,000 steps daily to stimulate laminar shear stress in arteries"
+      ]
+    }
+  },
+  {
+    id: "sleep-architecture-cortisol",
+    title: "Sleep Architecture & Cortisol Protocol",
+    subtitle: "A Clinical Guide to Resetting the Circadian Clock, Regulating the HPA Axis, and Unlocking Deep Stage 4 Recovery",
+    category: "biohacking",
+    isFree: false,
+    price: 27.50,
+    originalPrice: 55.00,
+    rating: 4.97,
+    reviewCount: 1290,
+    pages: 145,
+    readingTime: "3.8 hours",
+    coverImage: "/images/book_sleep.jpg",
+    pdfFileName: "/pdfs/sleep-architecture-cortisol.pdf",
+    badge: "Doctor's Special Edition",
+    badgeColor: "indigo",
+    description: "Deep sleep is the single most powerful anabolic, neuroprotective, and regenerative process known to biological science. In this clinical guide, Dr. Arif Chowdhury reveals how to master your circadian rhythm, eliminate nocturnal cortisol spikes, optimize REM vs Deep NREM cycles, and eliminate sleep fragmentation.",
+    highlights: [
+      "The 3-Phase Circadian Phototherapy Protocol (Lux Timing & Wavelengths)",
+      "HPA Axis Dysregulation & Nocturnal Cortisol/Adrenaline Flattening",
+      "Stage 4 Slow-Wave Sleep & Glymphatic Brain-Cleansing Activation",
+      "Targeted Clinical Neurotransmitter Stack (Magnesium L-Threonate, Apigenin, L-Theanine)",
+      "Nighttime Thermoregulation & Vasodilation Blueprint"
+    ],
+    tableOfContents: [
+      "Chapter 1: The Circadian Molecular Clock & Retinal Melanopsin Signaling",
+      "Chapter 2: The Glymphatic System: Brain Detoxification During Deep NREM",
+      "Chapter 3: Cortisol vs Melatonin: Reversing the Inverted Rhythm",
+      "Chapter 4: The 10-3-2-1-0 Pre-Sleep Protocol & Sleep Hygiene Architecture",
+      "Chapter 5: Sleep Nutrition: Blood Sugar Dips, Glycine & Nighttime Fuel",
+      "Chapter 6: Supplementation: Clinical Forms, Dosages & Common Mistakes"
+    ],
+    fullContent: {
+      introduction: "Sleep is not passive downtime — it is active cellular repair, memory consolidation, and neurochemical detoxification. Chronic sleep loss or fragmented sleep suppresses growth hormone by up to 70%, increases insulin resistance within a single night, and impairs the brain’s glymphatic clearance of metabolic waste.",
+      chapters: [
+        {
+          title: "Chapter 1: The Circadian Molecular Clock & Light Anchors",
+          content: "Your master biological pacemaker — the suprachiasmatic nucleus (SCN) — coordinates every peripheral cellular clock in the liver, pancreas, and heart. Melanopsin cells in the eye respond specifically to 460-490nm blue-cyan light. Viewing morning sunlight (10,000+ lux) within 30 minutes of waking triggers a healthy cortisol pulse and starts a precise 14-hour timer for nocturnal melatonin release.",
+          keyTakeaways: [
+            "Expose eyes to natural outdoor light for 10-15 minutes immediately upon waking.",
+            "Avoid wearing sunglasses during morning sunlight exposure to maximize melanopsin stimulation.",
+            "Dim indoor overhead lights after 8:00 PM and switch to warm, low-lux incandescent or red bulbs."
+          ],
+          doctorTip: "Dr. Arif's Rule: Light in the morning sets the anchor; absence of light in the evening allows melatonin synthesis to flourish."
+        },
+        {
+          title: "Chapter 2: The Glymphatic System: Detoxifying the Brain",
+          content: "During Stage 3 and Stage 4 Slow-Wave Sleep, astrocytes shrink by nearly 60%, allowing cerebrospinal fluid (CSF) to wash through interstitial brain tissue and flush out beta-amyloid, tau proteins, and metabolic debris. Sleeping on your side (lateral decubitus position) has been clinically shown to maximize this cleansing pathway by up to 25%.",
+          keyTakeaways: [
+            "Stage 4 sleep is concentrated primarily in the first third of your sleep cycle (10 PM - 2 AM).",
+            "Avoid alcohol before bed: while sedative, alcohol fragments sleep architecture and halts REM & Deep sleep.",
+            "Adopt a side-sleeping posture with supportive cervical neck alignment."
+          ],
+          doctorTip: "Keep your bedroom cool: 18°C - 19°C (64°F - 66°F). A drop in core body temperature of 1°C is biologically required for sleep onset."
+        },
+        {
+          title: "Chapter 3: Nighttime Cortisol Spikes & Blood Sugar Crashes",
+          content: "Many patients wake abruptly at 2:00 AM to 4:00 AM with racing thoughts or palpitations. This is rarely psychological; it is frequently a reactive hypoglycemia crash prompting an emergency surge of epinephrine and cortisol to raise blood glucose.",
+          keyTakeaways: [
+            "Consume 1 tablespoon of raw organic honey or 20g of slow-digesting protein with glycine before bed.",
+            "Avoid high-glycemic carbohydrates 3 hours before sleep to prevent postprandial reactive hypoglycemia.",
+            "Supplement with Magnesium Bisglycinate (300-400mg) to calm central nervous system excitability."
+          ],
+          doctorTip: "If waking at 3 AM persists, test your salivary 4-point cortisol curve to check for adrenal HPA axis dysregulation."
+        }
+      ],
+      conclusion: "When you master your sleep, every other health pillar — metabolism, body composition, cardiovascular health, and mental sharpness — improves effortlessly.",
+      protocolSummary: [
+        "Morning sunlight: 10-15 minutes outside within 30 minutes of waking",
+        "The 10-3-2-1-0 Rule: 10h no caffeine, 3h no food, 2h no work, 1h no screens, 0 snooze button hits",
+        "Bedroom environment: pitch black, 18°C, quiet",
+        "Take 300mg Magnesium L-Threonate + 50mg Apigenin 60 minutes before bed",
+        "Maintain consistent bed and wake times within 30 minutes daily"
       ]
     }
   }
