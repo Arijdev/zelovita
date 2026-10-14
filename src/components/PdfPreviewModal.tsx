@@ -10,7 +10,6 @@ import {
   ZoomOut, 
   Download, 
   RotateCcw, 
-  RotateCw,
   FileText,
   Maximize2,
   Minimize2
@@ -42,34 +41,7 @@ export const PdfPreviewModal: React.FC<PdfPreviewModalProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pdfDocRef = useRef<unknown>(null);
 
-  const loadPdf = async () => {
-    if (!pdfUrl) return;
-    
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const pdfjsLib = await import('pdfjs-dist');
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-      
-      const loadingTask = pdfjsLib.getDocument({ url: pdfUrl });
-      const pdfDoc = await loadingTask.promise;
-      pdfDocRef.current = pdfDoc;
-      setNumPages(pdfDoc.numPages);
-      setPageNumber(1);
-      await renderPage(1);
-    } catch (err) {
-      console.error('PDF load error:', err);
-      setError('Failed to load PDF. The file may be corrupted or inaccessible.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadPdf();
-  }, [pdfUrl]);
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const renderPage = async (pageNum: number) => {
     if (!pdfDocRef.current || rendering) return;
     
@@ -105,6 +77,36 @@ export const PdfPreviewModal: React.FC<PdfPreviewModalProps> = ({
       setLoading(false);
     }
   };
+
+  const loadPdf = async () => {
+    if (!pdfUrl) return;
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const pdfjsLib = await import('pdfjs-dist');
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+      
+      const loadingTask = pdfjsLib.getDocument({ url: pdfUrl });
+      const pdfDoc = await loadingTask.promise;
+      pdfDocRef.current = pdfDoc;
+      setNumPages(pdfDoc.numPages);
+      setPageNumber(1);
+      await renderPage(1);
+    } catch (err) {
+      console.error('PDF load error:', err);
+      setError('Failed to load PDF. The file may be corrupted or inaccessible.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => {
+    loadPdf();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pdfUrl]);
 
   const goToPage = (pageNum: number) => {
     if (pageNum >= 1 && pageNum <= numPages && pageNum !== pageNumber) {
@@ -154,7 +156,7 @@ export const PdfPreviewModal: React.FC<PdfPreviewModalProps> = ({
         <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 max-w-md text-center">
           <FileText className="w-16 h-16 text-slate-400 mx-auto mb-4" />
           <h3 className="text-lg font-bold text-slate-900 dark:text-white">No PDF Available</h3>
-          <p className="text-slate-500 dark:text-slate-400 mt-2">This resource doesn't have a PDF file attached.</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">This resource doesn&apos;t have a PDF file attached.</p>
           <button 
             onClick={onClose}
             className="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"

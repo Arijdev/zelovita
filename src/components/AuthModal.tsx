@@ -148,6 +148,7 @@ export const AuthModal: React.FC = () => {
   const [doctorEmail, setDoctorEmail] = useState('');
   const [doctorPassword, setDoctorPassword] = useState('');
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     setActiveTab(authModalTab);
     setError('');

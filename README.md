@@ -1,36 +1,152 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌿 ZeloVita — Dr. Arif Chowdhury's Clinical Health Ecosystem
 
-## Getting Started
+A modern, high-performance, full-stack digital health platform and e-commerce clinical library developed for **Dr. Arif Chowdhury**. Built with **Next.js 16 (Turbopack)**, **React 19**, **Tailwind CSS v4**, and **Supabase**.
 
-First, run the development server:
+---
+
+## ✨ Key Features
+
+### 📚 Clinical Resource Library & E-Commerce
+- **Digital Guides & Protocols**: Evidence-based metabolic, longevity, and clinical PDFs.
+- **Dynamic PDF Generator & Secure Delivery**: Server-side PDF rendering using `pdfkit` and dynamic watermarking/download streaming via `/api/download`.
+- **In-Browser PDF Viewer**: Built-in interactive document preview with zoom, rotation, page jumping, and pagination using `pdfjs-dist`.
+- **Cart & Instant Checkout**: Persistent cart context with localStorage synchronization, promo code support, order summaries, and mock/live checkout workflows.
+
+### 🩺 Interactive Clinical Health Tools
+- **Health Calculators**:
+  - BMI & Healthy Weight Range
+  - Basal Metabolic Rate (BMR) & Daily Caloric Needs (TDEE)
+  - Body Fat Percentage Calculator
+  - Water Intake & Hydration Recommendations
+- **60-Second Health Assessment Quiz**: Step-by-step diagnostic questionnaire providing customized health scorecards and recommended protocols.
+- **Consultation Booking Engine**: Slot picker, timezone adjustment, patient symptom intake, and booking confirmation flow.
+
+### 🔐 Authentication & Patient Portal
+- **Supabase Auth**: Email/Password, Magic Link OTP verification, and Google OAuth support.
+- **Customer Dashboard ("My Library")**: Instant access to purchased/unlocked guides with 1-click re-download and interactive in-browser reader.
+- **Doctor / Admin Portal**: Secure portal to upload new health guides (stored in Supabase Storage buckets), update pricing, manage resources, and track platform metrics.
+
+---
+
+## 🛠️ Tech Stack
+
+| Category | Technology |
+|---|---|
+| **Framework** | [Next.js 16](https://nextjs.org/) (App Router & Turbopack) |
+| **Frontend Library** | [React 19](https://react.dev/) |
+| **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) with Vanilla CSS variables |
+| **Database & Auth** | [Supabase](https://supabase.com/) (`@supabase/supabase-js`, `@supabase/ssr`) |
+| **Icons & UI** | [Lucide React](https://lucide.dev/) & Canvas Confetti |
+| **Document Processing**| `pdfkit`, `pdfjs-dist`, `canvas` |
+| **Language & Tooling** | TypeScript 5, ESLint 9 |
+
+---
+
+## 📁 Project Architecture
+
+```
+health/
+├── public/                     # Static assets and icons
+├── src/
+│   ├── app/                    # Next.js App Router
+│   │   ├── about/              # About Dr. Arif Chowdhury page
+│   │   ├── api/                # API routes (auth, download, resources, upload)
+│   │   ├── articles/           # Evidence-based medical articles
+│   │   ├── auth/callback/      # OAuth redirect handler
+│   │   ├── calculators/        # Clinical health calculators
+│   │   ├── consultation/       # Private consultation booking
+│   │   ├── guides/             # Health guides catalog
+│   │   ├── quiz/               # 60-Second Health Assessment
+│   │   ├── globals.css         # Theme tokens, dark mode, utilities
+│   │   ├── layout.tsx          # Root layout & context providers
+│   │   └── page.tsx            # Main landing page
+│   ├── components/             # Reusable UI & modal components
+│   │   ├── AuthModal.tsx       # Login, Signup, OTP modal
+│   │   ├── CartDrawer.tsx      # Slide-out shopping cart
+│   │   ├── CheckoutModal.tsx   # Checkout & payment processing
+│   │   ├── ConsultationBooking.tsx
+│   │   ├── CustomerDashboardModal.tsx
+│   │   ├── DoctorPortalModal.tsx
+│   │   ├── Header.tsx & Footer.tsx
+│   │   ├── HealthCalculators.tsx
+│   │   ├── HealthQuiz.tsx
+│   │   ├── InteractiveReaderModal.tsx
+│   │   ├── PdfPreviewModal.tsx
+│   │   ├── ResourceLibrary.tsx
+│   │   └── SearchModal.tsx
+│   ├── context/                # React Contexts (AuthContext, CartContext)
+│   └── lib/                    # Supabase clients & utility helpers
+├── SUPABASE_SETUP.sql          # Database schema, tables, and storage policies
+└── package.json
+```
+
+---
+
+## 🚀 Getting Started
+
+### 1. Prerequisites
+- **Node.js**: `v20.x` or higher recommended
+- **npm**, **pnpm**, or **yarn**
+- A [Supabase](https://supabase.com) project (for DB, Auth, and Storage)
+
+### 2. Installation
+
+Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/your-username/zelovita.git
+cd health
+npm install
+```
+
+### 3. Environment Variables Configuration
+
+Create a `.env.local` file in the root directory:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+### 4. Database Setup
+
+Execute the SQL script located in [`SUPABASE_SETUP.sql`](./SUPABASE_SETUP.sql) inside your Supabase SQL Editor. This will provision:
+- `resources` table (Health guides, pricing, ratings, download links)
+- `orders` & `user_profiles` tables
+- Storage buckets (`guides-pdf`) with appropriate RLS policies
+
+### 5. Running the Application
+
+Start the local development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Navigate to [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📜 Available Scripts
 
-## Learn More
+| Command | Description |
+|---|---|
+| `npm run dev` | Runs the Next.js app in development mode with Turbopack |
+| `npm run build` | Compiles and validates the production build |
+| `npm run start` | Runs the compiled production server |
+| `npm run lint` | Runs ESLint validation across all TypeScript and React files |
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔒 Security & Medical Disclaimer
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Medical Disclaimer**: The resources, calculators, and protocols provided on this site are for educational and clinical guidance under the instruction of Dr. Arif Chowdhury and do not replace individualized hospital care.
+- **File Security**: Digital guide downloads are signed and verified to prevent unauthorized sharing.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📄 License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Private & Proprietary © 2026 Dr. Arif Chowdhury / ZeloVita. All Rights Reserved.

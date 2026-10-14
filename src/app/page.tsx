@@ -172,7 +172,7 @@ export default function HomePage() {
             Ready to Transform Your Health?
           </h2>
           <p className="text-emerald-100 text-lg sm:text-xl max-w-2xl mx-auto">
-            Join 12,000+ patients using Dr. Arif's clinical protocols. Start with free guides or book a personalized consultation.
+            Join 12,000+ patients using Dr. Arif&apos;s clinical protocols. Start with free guides or book a personalized consultation.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link

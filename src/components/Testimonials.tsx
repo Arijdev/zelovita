@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import Image from 'next/image';
@@ -76,7 +76,7 @@ export const Testimonials: React.FC = () => {
 
                 {/* Quote */}
                 <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed italic font-serif">
-                  "{t.quote}"
+                  &ldquo;{t.quote}&rdquo;
                 </p>
               </div>
 

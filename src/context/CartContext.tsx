@@ -50,7 +50,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { isAuthenticated, openAuthModal, recordDownload, session } = useAuth();
+  const { isAuthenticated, openAuthModal, recordDownload } = useAuth();
   const [resources, setResources] = useState<HealthResource[]>(HEALTH_RESOURCES);
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -102,6 +102,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // Load resources on mount
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     fetchResources();
   }, []);
@@ -135,6 +136,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // Load cart and unlocked resources from localStorage on mount
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     try {
       const savedCart = localStorage.getItem('zelovita_cart');

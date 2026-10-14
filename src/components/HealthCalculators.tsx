@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { 
@@ -256,7 +256,7 @@ export const HealthCalculators: React.FC = () => {
                   </label>
                   <select
                     value={gender}
-                    onChange={e => setGender(e.target.value as any)}
+                    onChange={e => setGender(e.target.value as 'male' | 'female')}
                     className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white text-xs border border-slate-200 dark:border-slate-700 outline-none"
                   >
                     <option value="male">Male</option>
@@ -414,7 +414,7 @@ export const HealthCalculators: React.FC = () => {
                   </label>
                   <select
                     value={activityLevel}
-                    onChange={e => setActivityLevel(e.target.value as any)}
+                    onChange={e => setActivityLevel(e.target.value as 'sedentary' | 'moderate' | 'intense')}
                     className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700 outline-none"
                   >
                     <option value="sedentary">Light / Desk Work</option>
@@ -428,7 +428,7 @@ export const HealthCalculators: React.FC = () => {
                   </label>
                   <select
                     value={climate}
-                    onChange={e => setClimate(e.target.value as any)}
+                    onChange={e => setClimate(e.target.value as 'normal' | 'hot')}
                     className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700 outline-none"
                   >
                     <option value="normal">Normal / Air Conditioned</option>

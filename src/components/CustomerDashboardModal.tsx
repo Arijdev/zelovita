@@ -223,7 +223,7 @@ export const CustomerDashboardModal: React.FC = () => {
                   Your Download History Log
                 </h4>
                 <p className="text-xs text-slate-500">
-                  Every guide you've downloaded is permanently archived here for instant 1-click re-download.
+                  Every guide you&apos;ve downloaded is permanently archived here for instant 1-click re-download.
                 </p>
               </div>
 
@@ -290,7 +290,7 @@ export const CustomerDashboardModal: React.FC = () => {
                   Purchase Orders & Tax Receipts
                 </h4>
                 <p className="text-xs text-slate-500">
-                  Detailed receipts for your transactions with Dr. Arif Chowdhury's academy.
+                  Detailed receipts for your transactions with Dr. Arif Chowdhury&apos;s academy.
                 </p>
               </div>
 

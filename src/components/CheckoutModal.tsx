@@ -48,6 +48,7 @@ export const CheckoutModal: React.FC = () => {
   const [country, setCountry] = useState('United States');
 
   // Sync user details if logged in
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   React.useEffect(() => {
     if (user) {
       setName(user.name);

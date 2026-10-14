@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import Image from 'next/image';
@@ -289,7 +289,7 @@ export const InteractiveReaderModal: React.FC = () => {
                       <span>Author's Clinical Introduction</span>
                     </h4>
                     <p className="text-sm font-serif italic leading-relaxed text-slate-700 dark:text-slate-300">
-                      "{resource.fullContent.introduction}"
+                      &ldquo;{resource.fullContent.introduction}&rdquo;
                     </p>
                   </div>
                 )}
@@ -349,7 +349,7 @@ export const InteractiveReaderModal: React.FC = () => {
                       <Lock className="w-6 h-6" />
                     </div>
                     <h3 className="text-xl font-bold">
-                      You are previewing Chapter 1 of "{resource.title}"
+                      You are previewing Chapter 1 of &ldquo;{resource.title}&rdquo;
                     </h3>
                     <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto leading-relaxed">
                       Unlock the remaining {chapters.length - 1} comprehensive chapters, 30-day meal plans, supplement dosages, and get the complete high-res printable PDF.

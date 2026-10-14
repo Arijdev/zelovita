@@ -113,7 +113,7 @@ export const CartDrawer: React.FC = () => {
                   Your cart is empty
                 </h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
-                  Explore Dr. Arif Chowdhury's health guides to power your health transformation.
+                  Explore Dr. Arif Chowdhury&apos;s health guides to power your health transformation.
                 </p>
                 <div className="pt-2">
                   <button

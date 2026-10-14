@@ -8,20 +8,14 @@ import { useAuth } from '@/context/AuthContext';
 import { 
   HeartPulse, 
   ShoppingBag, 
-  BookOpen, 
   Moon, 
   Sun, 
   Menu, 
   X, 
   Search, 
   User, 
-  Stethoscope, 
-  LogOut, 
-  Plus,
-  ShieldCheck,
-  Receipt
+  Stethoscope
 } from 'lucide-react';
-import { DOCTOR_INFO } from '@/data/healthData';
 
 interface HeaderProps {
   onOpenMyLibrary: () => void;
@@ -29,13 +23,12 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onOpenMyLibrary, onOpenSearch }) => {
-  const { cartCount, setIsCartOpen, unlockedResources } = useCart();
+  const { cartCount, setIsCartOpen } = useCart();
   const { 
     user, 
     isAuthenticated, 
     isDoctor, 
     openAuthModal, 
-    logout, 
     setIsCustomerDashboardOpen, 
     setIsDoctorPortalOpen 
   } = useAuth();
@@ -43,7 +36,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMyLibrary, onOpenSearch })
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,6 +48,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMyLibrary, onOpenSearch })
   useEffect(() => {
     // Check local storage for user's explicit preference; default to clean Light Mode
     const savedTheme = localStorage.getItem('zelovita_theme');
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (savedTheme === 'dark') {
       setIsDarkMode(true);
       document.documentElement.classList.add('dark');
