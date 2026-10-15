@@ -33,7 +33,9 @@ export async function POST(request: NextRequest) {
 
     if (type === 'recovery') {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/reset-password`,
+        // Land on the site root — the browser client detects the recovery
+        // token from the URL and opens the reset form automatically.
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/`,
       });
 
       if (error) {

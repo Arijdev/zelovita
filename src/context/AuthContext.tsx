@@ -7,7 +7,27 @@ import { User, UserRole, DownloadHistoryItem, PurchaseHistoryItem, HealthResourc
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type AuthTab = 'customer-login' | 'customer-register' | 'doctor-login';
+type AuthTab = 'customer-login' | 'customer-register' | 'doctor-login' | 'reset-password';
+
+// Tracks which recovery session has already been completed so the
+// set-new-password form isn't re-opened after the user finishes.
+const PASSWORD_RESET_GUARD_KEY = 'zelovita_password_reset_handled_at';
+
+// Snapshot of auth params in the URL at module load. The Supabase client
+// processes a recovery redirect (PKCE ?code= / hash tokens) during init and
+// then cleans the URL, so we capture the markers before that happens.
+const RECOVERY_URL_MARKERS: { code: string | null; tokenHash: string | null; type: string | null } | null =
+  typeof window !== 'undefined'
+    ? (() => {
+        const search = new URLSearchParams(window.location.search);
+        const hash = new URLSearchParams(window.location.hash.slice(1));
+        return {
+          code: search.get('code') || hash.get('code'),
+          tokenHash: search.get('token_hash') || hash.get('token_hash'),
+          type: search.get('type') || hash.get('type'),
+        };
+      })()
+    : null;
 
 interface AuthContextType {
   user: User | null;
@@ -18,13 +38,16 @@ interface AuthContextType {
   isAuthModalOpen: boolean;
   authModalTab: AuthTab;
   authModalReason: string;
+  authModalInitialView: 'login' | 'forgot';
   authLoading: boolean;
 
-  openAuthModal: (tab?: AuthTab, reason?: string) => void;
+  openAuthModal: (tab?: AuthTab, reason?: string, initialView?: 'login' | 'forgot') => void;
   closeAuthModal: () => void;
 
   // Auth actions
   signInWithPassword: (email: string, password: string) => Promise<{ error: string | null }>;
+  resetPassword: (email: string) => Promise<{ error: string | null }>;
+  updatePassword: (password: string) => Promise<{ error: string | null }>;
   signUpWithPassword: (name: string, email: string, password: string, phone?: string) => Promise<{ error: string | null; needsOtp?: boolean }>;
   verifyOtp: (email: string, token: string, password?: string, fullName?: string, role?: string) => Promise<{ error: string | null }>;
   signInWithGoogle: () => Promise<{ error: string | null }>;
@@ -58,6 +81,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<AuthTab>('customer-login');
   const [authModalReason, setAuthModalReason] = useState('');
+  const [authModalInitialView, setAuthModalInitialView] = useState<'login' | 'forgot'>('login');
   const [downloadHistory, setDownloadHistory] = useState<DownloadHistoryItem[]>([]);
   const [purchaseHistory, setPurchaseHistory] = useState<PurchaseHistoryItem[]>([]);
   const [isCustomerDashboardOpen, setIsCustomerDashboardOpen] = useState(false);
@@ -156,11 +180,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, []);
 
+  // ── Open the set-new-password form after a recovery-link redirect ────────────
+  const promptPasswordReset = useCallback((supabaseUser: SupabaseUser | null) => {
+    try {
+      const sentAt = supabaseUser?.recovery_sent_at || '';
+      if (sentAt && typeof sessionStorage !== 'undefined' && sessionStorage.getItem(PASSWORD_RESET_GUARD_KEY) === sentAt) {
+        return; // This recovery was already completed in this browser
+      }
+    } catch {
+      // sessionStorage unavailable — proceed without the guard
+    }
+
+    setAuthModalTab('reset-password');
+    setAuthModalReason('');
+    setIsAuthModalOpen(true);
+  }, []);
+
   // ── Initialize: listen for auth state changes ─────────────────────────────────
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: string, newSession: Session | null) => {
       setSession(newSession);
       setAuthLoading(true);
+
+      // Recovery link clicked → open the set-new-password form
+      if (event === 'PASSWORD_RECOVERY') {
+        promptPasswordReset(newSession?.user ?? null);
+      }
 
       if (newSession?.user) {
         const builtUser = await buildUserFromProfile(newSession.user);
@@ -186,16 +231,64 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           await loadHistory(initialSession.user.id);
         }
       }
+
+      // ── Password-recovery link landed on this page ─────────────────────────
+      // The client library auto-exchanges a PKCE ?code= (and hash tokens) and
+      // fires PASSWORD_RECOVERY; RECOVERY_URL_MARKERS snapshots the URL before
+      // the library cleans it, so we can still recognise the redirect here.
+      const markers = RECOVERY_URL_MARKERS;
+      const isRecoveryUrl =
+        markers !== null &&
+        (markers.type === 'recovery' || markers.tokenHash !== null || markers.code !== null);
+
+      if (initialSession?.user) {
+        // A session exists. Offer the reset form when a recovery email was
+        // recently sent or the URL clearly came from a recovery link.
+        const sentAt = initialSession.user.recovery_sent_at;
+        const sentRecently = !!sentAt && Date.now() - Date.parse(sentAt) < 24 * 60 * 60 * 1000;
+        if (sentRecently || isRecoveryUrl) {
+          promptPasswordReset(initialSession.user);
+        }
+      } else if (isRecoveryUrl) {
+        // Link clicked but no session could be established. Older templates
+        // deliver ?token_hash=…&type=recovery links — verify those manually.
+        if (markers?.tokenHash && (markers.type === 'recovery' || markers.type === null)) {
+          const { error: tokenHashError } = await supabase.auth.verifyOtp({
+            token_hash: markers.tokenHash,
+            type: 'recovery',
+          });
+          if (!tokenHashError) {
+            const { data: { session: recoveredSession } } = await supabase.auth.getSession();
+            if (recoveredSession?.user) {
+              setSession(recoveredSession);
+              const builtUser = await buildUserFromProfile(recoveredSession.user);
+              setUser(builtUser);
+              promptPasswordReset(recoveredSession.user);
+              setAuthLoading(false);
+              return;
+            }
+          }
+        }
+
+        // The code was expired, already used, or opened in a different
+        // browser — tell the user instead of silently showing the homepage.
+        setAuthModalTab('customer-login');
+        setAuthModalReason('This password reset link is invalid, expired, or has already been used — reset links only work once, in the same browser. Please request a new one below.');
+        setAuthModalInitialView('forgot');
+        setIsAuthModalOpen(true);
+      }
+
       setAuthLoading(false);
     });
 
     return () => subscription.unsubscribe();
-  }, [buildUserFromProfile, loadHistory]);
+  }, [buildUserFromProfile, loadHistory, promptPasswordReset]);
 
   // ── Modal helpers ─────────────────────────────────────────────────────────────
-  const openAuthModal = useCallback((tab: AuthTab = 'customer-login', reason = '') => {
+  const openAuthModal = useCallback((tab: AuthTab = 'customer-login', reason = '', initialView: 'login' | 'forgot' = 'login') => {
     setAuthModalTab(tab);
     setAuthModalReason(reason);
+    setAuthModalInitialView(initialView);
     setIsAuthModalOpen(true);
   }, []);
 
@@ -210,6 +303,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (error) return { error: error.message };
     closeAuthModal();
     return { error: null };
+  };
+
+  // ── Password Reset (email recovery link) ──────────────────────────────────────
+  const resetPassword = async (email: string): Promise<{ error: string | null }> => {
+    try {
+      // Land on the site root — the client detects the recovery token from the
+      // URL anywhere in the app and opens the reset form automatically.
+      const redirectTo = typeof window !== 'undefined'
+        ? window.location.origin
+        : process.env.NEXT_PUBLIC_SITE_URL;
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo,
+      });
+
+      if (error) return { error: error.message };
+      return { error: null };
+    } catch {
+      return { error: 'Network error. Please try again.' };
+    }
   };
 
   // ── Customer Registration (OTP-based) ──────────────────────────────────────────
@@ -258,6 +371,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     } catch (err) {
       return { error: 'Network error. Please try again.' };
     }
+  };
+
+  // ── Set a new password during an active recovery session ──────────────────────
+  const updatePassword = async (password: string): Promise<{ error: string | null }> => {
+    const { data, error } = await supabase.auth.updateUser({ password });
+    if (error) return { error: error.message };
+
+    try {
+      sessionStorage.setItem(
+        PASSWORD_RESET_GUARD_KEY,
+        data.user?.recovery_sent_at || String(Date.now())
+      );
+    } catch {
+      // sessionStorage unavailable — guard is best-effort
+    }
+
+    return { error: null };
   };
 
   // ── Google OAuth ──────────────────────────────────────────────────────────────
@@ -414,10 +544,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isAuthModalOpen,
         authModalTab,
         authModalReason,
+        authModalInitialView,
         authLoading,
         openAuthModal,
         closeAuthModal,
         signInWithPassword,
+        resetPassword,
+        updatePassword,
         signUpWithPassword,
         verifyOtp,
         signInWithGoogle,

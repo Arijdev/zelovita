@@ -117,14 +117,17 @@ export const AuthModal: React.FC = () => {
     closeAuthModal,
     authModalTab,
     authModalReason,
+    authModalInitialView,
     signInWithPassword,
+    resetPassword,
+    updatePassword,
     signUpWithPassword,
     verifyOtp,
     signInWithGoogle,
     signInAsDoctor,
   } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'customer-login' | 'customer-register' | 'doctor-login'>(authModalTab);
+  const [activeTab, setActiveTab] = useState<'customer-login' | 'customer-register' | 'doctor-login' | 'reset-password'>(authModalTab);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -138,6 +141,16 @@ export const AuthModal: React.FC = () => {
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
 
+  // Forgot password (email → link)
+  const [view, setView] = useState<'login' | 'forgot'>('login');
+  const [forgotStep, setForgotStep] = useState<'email' | 'sent'>('email');
+  const [forgotEmail, setForgotEmail] = useState('');
+
+  // Set new password (active recovery session)
+  const [resetDone, setResetDone] = useState(false);
+  const [resetPasswordValue, setResetPasswordValue] = useState('');
+  const [resetConfirmValue, setResetConfirmValue] = useState('');
+
   // Customer register
   const [regName, setRegName] = useState('');
   const [regEmail, setRegEmail] = useState('');
@@ -148,13 +161,18 @@ export const AuthModal: React.FC = () => {
   const [doctorEmail, setDoctorEmail] = useState('');
   const [doctorPassword, setDoctorPassword] = useState('');
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     setActiveTab(authModalTab);
     setError('');
     setSuccess('');
     setOtpSent(false);
-  }, [authModalTab, isAuthModalOpen]);
+    setView(authModalInitialView);
+    setForgotStep('email');
+    setForgotEmail('');
+    setResetDone(false);
+    setResetPasswordValue('');
+    setResetConfirmValue('');
+  }, [authModalTab, authModalInitialView, isAuthModalOpen]);
 
   if (!isAuthModalOpen) return null;
 
@@ -168,6 +186,48 @@ export const AuthModal: React.FC = () => {
     const { error: err } = await signInWithPassword(loginEmail, loginPassword);
     setLoading(false);
     if (err) setError(err);
+  };
+
+  // ── Forgot Password: send reset link ───────────────────────────────────────
+  const handleForgotSendLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    clearErrors();
+    setLoading(true);
+    const { error: err } = await resetPassword(forgotEmail);
+    setLoading(false);
+    if (err) setError(err);
+    else setForgotStep('sent');
+  };
+
+  // ── Forgot Password: resend link ───────────────────────────────────────────
+  const handleForgotResend = async () => {
+    clearErrors();
+    setLoading(true);
+    const { error: err } = await resetPassword(forgotEmail);
+    setLoading(false);
+    if (err) setError(err);
+  };
+
+  // ── Set New Password (recovery session) ────────────────────────────────────
+  const handleSetNewPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    clearErrors();
+
+    const strength = getPasswordStrength(resetPasswordValue);
+    if (strength.score < 3) {
+      setError('Please use a stronger password (at least 8 chars with uppercase, numbers, and symbols).');
+      return;
+    }
+    if (resetPasswordValue !== resetConfirmValue) {
+      setError('Passwords do not match. Please re-enter them.');
+      return;
+    }
+
+    setLoading(true);
+    const { error: err } = await updatePassword(resetPasswordValue);
+    setLoading(false);
+    if (err) setError(err);
+    else setResetDone(true);
   };
 
   // ── Customer Register ──────────────────────────────────────────────────────
@@ -243,14 +303,20 @@ export const AuthModal: React.FC = () => {
           </div>
 
           <h3 className="text-xl font-extrabold text-white">
-            {activeTab === 'doctor-login'
+            {activeTab === 'customer-login' && view === 'forgot'
+              ? '🔐 Reset Your Password'
+              : activeTab === 'reset-password'
+              ? '🔐 Set a New Password'
+              : activeTab === 'doctor-login'
               ? 'Doctor & Medical Staff Portal'
               : activeTab === 'customer-register'
               ? otpSent ? '📧 Verify Your Email' : 'Create Your Health Account'
               : 'Welcome Back'}
           </h3>
           <p className="text-xs text-emerald-100 mt-1">
-            {activeTab === 'doctor-login'
+            {activeTab === 'reset-password'
+              ? 'Complete your password recovery securely'
+              : activeTab === 'doctor-login'
               ? 'Publish guides, manage pricing & analytics'
               : 'Access your library, download PDFs & view history'}
           </p>
@@ -273,7 +339,7 @@ export const AuthModal: React.FC = () => {
           ] as const).map(tab => (
             <button
               key={tab.key}
-              onClick={() => { setActiveTab(tab.key); clearErrors(); setOtpSent(false); }}
+              onClick={() => { setActiveTab(tab.key); clearErrors(); setOtpSent(false); setView('login'); setForgotStep('email'); }}
               className={`py-2 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
                 activeTab === tab.key
                   ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm'
@@ -306,7 +372,7 @@ export const AuthModal: React.FC = () => {
         <div className="p-6 space-y-4">
 
           {/* ─── CUSTOMER SIGN IN ──────────────────────────────── */}
-          {activeTab === 'customer-login' && (
+          {activeTab === 'customer-login' && view === 'login' && (
             <form onSubmit={handleLogin} className="space-y-4">
               <GoogleButton onSignIn={handleGoogle} loading={loading} />
               <Divider />
@@ -327,7 +393,16 @@ export const AuthModal: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Password</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">Password</label>
+                  <button
+                    type="button"
+                    onClick={() => { setView('forgot'); clearErrors(); }}
+                    className="text-[11px] font-semibold text-emerald-600 hover:underline"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
                 <PasswordInput value={loginPassword} onChange={setLoginPassword} placeholder="Your password" />
               </div>
 
@@ -346,6 +421,150 @@ export const AuthModal: React.FC = () => {
                 </button>
               </p>
             </form>
+          )}
+
+          {/* ─── FORGOT PASSWORD ─────────────────────────────── */}
+          {activeTab === 'customer-login' && view === 'forgot' && (
+            forgotStep === 'email' ? (
+              <form onSubmit={handleForgotSendLink} className="space-y-4">
+                <div className="text-center space-y-2">
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-950/50 flex items-center justify-center mx-auto">
+                    <Mail className="w-8 h-8 text-emerald-600" />
+                  </div>
+                  <p className="text-xs font-bold text-slate-900 dark:text-white">Forgot your password?</p>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Enter the email linked to your account and we&apos;ll send you a secure link to set a new password.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="email"
+                      required
+                      autoFocus
+                      placeholder="you@example.com"
+                      value={forgotEmail}
+                      onChange={e => { setForgotEmail(e.target.value); clearErrors(); }}
+                      className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2 p-3 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 text-[11px] text-blue-700 dark:text-blue-300">
+                  <Shield className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                  <span>The reset link is single-use and expires shortly after it&apos;s sent for your protection.</span>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs shadow-md shadow-emerald-600/25 transition-all flex items-center justify-center gap-1.5"
+                >
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><span>Send Reset Link</span><ArrowRight className="w-4 h-4" /></>}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { setView('login'); clearErrors(); }}
+                  className="w-full text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+                >
+                  ← Back to sign in
+                </button>
+              </form>
+            ) : (
+              <div className="space-y-4 text-center py-2">
+                <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-950/50 flex items-center justify-center mx-auto">
+                  <Mail className="w-8 h-8 text-emerald-600" />
+                </div>
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  We&apos;ve sent a password reset link to<br />
+                  <strong className="text-slate-900 dark:text-white">{forgotEmail}</strong>
+                </p>
+                <p className="text-xs text-slate-500">
+                  Open the email and click the link to continue — it will open right here in this browser.
+                </p>
+
+                <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-[11px] text-amber-800 dark:text-amber-200 text-left">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>No email after a few minutes? Check your spam folder, or resend it below.</span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleForgotResend}
+                  disabled={loading}
+                  className="w-full text-xs font-semibold text-emerald-600 hover:underline disabled:opacity-50"
+                >
+                  {loading ? 'Sending…' : 'Resend link'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { setView('login'); setForgotStep('email'); clearErrors(); }}
+                  className="w-full text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+                >
+                  ← Back to sign in
+                </button>
+              </div>
+            )
+          )}
+
+          {/* ─── SET NEW PASSWORD (recovery session) ─────────── */}
+          {activeTab === 'reset-password' && (
+            resetDone ? (
+              <div className="space-y-4 text-center py-2">
+                <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-950/50 flex items-center justify-center mx-auto">
+                  <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+                </div>
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  Your password has been updated successfully. You&apos;re now signed in — welcome back!
+                </p>
+                <button
+                  type="button"
+                  onClick={closeAuthModal}
+                  className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
+                >
+                  <><span>Continue</span><ArrowRight className="w-4 h-4" /></>
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSetNewPassword} className="space-y-4">
+                <div className="text-center space-y-2">
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-950/50 flex items-center justify-center mx-auto">
+                    <KeyRound className="w-8 h-8 text-emerald-600" />
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Choose a new password for your account.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">New Password</label>
+                  <PasswordInput value={resetPasswordValue} onChange={setResetPasswordValue} showStrength placeholder="Create a strong password" />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Confirm New Password</label>
+                  <PasswordInput value={resetConfirmValue} onChange={setResetConfirmValue} placeholder="Re-enter new password" />
+                </div>
+
+                <div className="flex items-start gap-2 p-3 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 text-[11px] text-blue-700 dark:text-blue-300">
+                  <Shield className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                  <span>After updating, you&apos;ll stay signed in on this device — no need to log in again.</span>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs shadow-md shadow-emerald-600/25 transition-all flex items-center justify-center gap-1.5"
+                >
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CheckCircle2 className="w-4 h-4" /><span>Update Password</span></>}
+                </button>
+              </form>
+            )
           )}
 
           {/* ─── CUSTOMER REGISTER ─────────────────────────────── */}
