@@ -19,6 +19,7 @@ import {
   Lock
 } from 'lucide-react';
 import { HEALTH_RESOURCES } from '@/data/healthData';
+import { useCountryCurrency } from '@/context/CountryCurrencyContext';
 
 export const CartDrawer: React.FC = () => {
   const { 
@@ -38,6 +39,7 @@ export const CartDrawer: React.FC = () => {
     addToCart
   } = useCart();
   const { isAuthenticated, openAuthModal } = useAuth();
+  const { formatPrice } = useCountryCurrency();
 
   const [couponInput, setCouponInput] = useState('');
   const [couponError, setCouponError] = useState('');
@@ -185,7 +187,7 @@ export const CartDrawer: React.FC = () => {
 
                       {/* Price */}
                       <span className="text-sm font-bold text-slate-900 dark:text-white">
-                        ${(item.resource.price * item.quantity).toFixed(2)}
+                        {formatPrice(item.resource.price * item.quantity)}
                       </span>
                     </div>
                   </div>
@@ -222,7 +224,7 @@ export const CartDrawer: React.FC = () => {
                         {appliedCoupon.code}
                       </span>
                       <span className="text-emerald-700 dark:text-emerald-400">
-                        (-${discountAmount.toFixed(2)})
+                        (-{formatPrice(discountAmount)})
                       </span>
                     </div>
                     <button
@@ -266,21 +268,21 @@ export const CartDrawer: React.FC = () => {
               <div className="space-y-1.5 text-xs">
                 <div className="flex justify-between text-slate-600 dark:text-slate-400">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>{formatPrice(subtotal)}</span>
                 </div>
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-semibold">
                     <span>Discount Applied</span>
-                    <span>-${discountAmount.toFixed(2)}</span>
+                    <span>-{formatPrice(discountAmount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-slate-600 dark:text-slate-400">
                   <span>Digital Delivery & Tax</span>
-                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">FREE ($0.00)</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">FREE ({formatPrice(0)})</span>
                 </div>
                 <div className="flex justify-between text-base font-extrabold text-slate-900 dark:text-white pt-2 border-t border-slate-200 dark:border-slate-800">
                   <span>Total</span>
-                  <span className="text-emerald-600 dark:text-emerald-400">${total.toFixed(2)}</span>
+                  <span className="text-emerald-600 dark:text-emerald-400">{formatPrice(total)}</span>
                 </div>
               </div>
 

@@ -15,6 +15,7 @@ import { AuthModal } from '@/components/AuthModal';
 import { CustomerDashboardModal } from '@/components/CustomerDashboardModal';
 import { DoctorPortalModal } from '@/components/DoctorPortalModal';
 import { ToastContainer } from '@/components/Toast';
+import { CountryCurrencyProvider } from '@/context/CountryCurrencyContext';
 
 export default function RootLayout({
   children,
@@ -42,8 +43,9 @@ export default function RootLayout({
         className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-emerald-500 selection:text-white font-sans antialiased transition-colors duration-300"
         suppressHydrationWarning
       >
-        <AuthProvider>
-          <CartProvider>
+        <CountryCurrencyProvider>
+          <AuthProvider>
+            <CartProvider>
             {/* Navigation Header */}
             <Header
               onOpenMyLibrary={() => setIsLibraryOpen(true)}
@@ -75,8 +77,9 @@ export default function RootLayout({
               onSelectResourceSearch={handleSelectSearch}
             />
             <ToastContainer />
-          </CartProvider>
-        </AuthProvider>
+            </CartProvider>
+          </AuthProvider>
+        </CountryCurrencyProvider>
       </body>
     </html>
   );

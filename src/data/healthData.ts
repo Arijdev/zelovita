@@ -687,49 +687,28 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
 
 export const CONSULTATION_PACKAGES: ConsultationPackage[] = [
   {
-    id: "rapid-strategy",
-    title: "30-Min Clinical Rapid Strategy",
-    duration: "30 Minutes",
+    id: "consult-15-minute",
+    title: "15-Minute Consultation",
+    duration: "15 min",
+    durationMinutes: 15,
+    price: 49,
+    description: "A focused session for one question or concern.",
+  },
+  {
+    id: "consult-30-minute",
+    title: "30-Minute Consultation",
+    duration: "30 min",
+    durationMinutes: 30,
     price: 99,
-    description: "Targeted 1-on-1 virtual consultation with Dr. Arif Chowdhury to address a single acute health concern, review basic blood work, or fine-tune an existing nutrition plan.",
-    features: [
-      "Direct 1-on-1 Zoom video call with Dr. Arif Chowdhury",
-      "Analysis of your top 2 health symptoms or questions",
-      "Targeted supplement dosage & brand recommendation",
-      "Personalized 2-page Action Summary PDF emailed within 24h",
-      "Full recording of the video session"
-    ]
+    description: "Time to discuss a concern and get personalized guidance.",
   },
   {
-    id: "comprehensive-audit",
-    title: "60-Min Comprehensive Health & Longevity Audit",
-    duration: "60 Minutes",
+    id: "consult-60-minute",
+    title: "1-Hour Consultation",
+    duration: "1 hour",
+    durationMinutes: 60,
     price: 189,
-    popular: true,
-    description: "Our most popular comprehensive consultation. An in-depth functional medicine investigation examining your full medical history, full blood lab panel, and custom lifestyle roadmap.",
-    features: [
-      "In-depth 60-Minute Video Consultation with Dr. Arif",
-      "Complete 360° Review of all previous Blood/Lab Tests & Biomarkers",
-      "Custom 30-Day Nutrition, Supplement & Circadian Protocol",
-      "Direct guidance on ordering advanced functional tests (ApoB, Gut Stool, Hormone panels)",
-      "Free access to 2 Premium eBooks of your choice ($65 Value)",
-      "14-Day direct priority email follow-up support"
-    ]
-  },
-  {
-    id: "vip-mentorship",
-    title: "3-Month VIP Health & Metabolic Mentorship",
-    duration: "3 Months (6 Sessions)",
-    price: 499,
-    description: "A complete hands-on partnership to reverse chronic conditions, shed visceral weight, optimize cardiometabolic biomarkers, and maintain peak physical vitality.",
-    features: [
-      "Six (6) Bi-weekly 45-Minute Private Sessions with Dr. Arif",
-      "Continuous CGM (Continuous Glucose Monitor) Data Review & Analysis",
-      "Complete access to ALL Current & Future eBooks & Health Masterclasses",
-      "Private WhatsApp / Telegram VIP Direct Messaging with Dr. Arif's Team",
-      "Personalized Monthly Recipe & Grocery Delivery Blueprints",
-      "Personalized Certificate of Completion & Medical Re-Assessment"
-    ]
+    description: "A longer session for a detailed discussion and review.",
   }
 ];
 

@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { HealthResource, CartItem, Coupon } from '@/types/health';
 import { DISCOUNT_COUPONS, HEALTH_RESOURCES } from '@/data/healthData';
 import { useAuth } from './AuthContext';
+import { useCountryCurrency } from './CountryCurrencyContext';
 
 interface ToastMessage {
   id: string;
@@ -50,7 +51,8 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { isAuthenticated, openAuthModal, recordDownload } = useAuth();
+  const { isAuthenticated, openAuthModal, recordDownload, purchaseHistory } = useAuth();
+  const { formatPrice } = useCountryCurrency();
   const [resources, setResources] = useState<HealthResource[]>(HEALTH_RESOURCES);
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -156,6 +158,17 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, []);
 
+  useEffect(() => {
+    const purchasedResourceIds = purchaseHistory.flatMap((purchase) =>
+      purchase.items
+        .map((item) => item.resourceId)
+        .filter((resourceId) => !resourceId.startsWith('consultation:')),
+    );
+    if (purchasedResourceIds.length > 0) {
+      setUnlockedResources((current) => Array.from(new Set([...current, ...purchasedResourceIds])));
+    }
+  }, [purchaseHistory]);
+
   // Save cart changes
   useEffect(() => {
     try {
@@ -247,7 +260,10 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const found = DISCOUNT_COUPONS.find(c => c.code.toUpperCase() === clean);
     if (found) {
       setAppliedCoupon(found);
-      addToast('Promo Code Applied!', `${found.description}`, 'success');
+      const couponMessage = found.discountAmount
+        ? `${formatPrice(found.discountAmount)} Instant Cart Discount`
+        : found.description;
+      addToast('Promo Code Applied!', couponMessage, 'success');
       return { success: true, message: `Promo code ${found.code} applied successfully!` };
     }
     return { success: false, message: 'Invalid coupon code. Try ARIF50 or HEALTH20.' };

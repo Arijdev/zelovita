@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { QUIZ_QUESTIONS, HEALTH_RESOURCES } from '@/data/healthData';
 import { useCart } from '@/context/CartContext';
+import { useCountryCurrency } from '@/context/CountryCurrencyContext';
 import { 
   Sparkles, 
   CheckCircle2, 
@@ -52,6 +53,7 @@ const iconMap: Record<string, any> = {
 };
 
 export const HealthQuiz: React.FC = () => {
+  const { formatPrice } = useCountryCurrency();
   const { addToCart, openReader } = useCart();
   const [currentStep, setCurrentStep] = useState(0);
   const [scores, setScores] = useState<Record<string, number>>({
@@ -242,7 +244,7 @@ export const HealthQuiz: React.FC = () => {
 
                   <div className="flex items-center justify-between pt-2">
                     <span className="text-sm font-bold text-slate-900 dark:text-white">
-                      ${recommendedPaidResource.price.toFixed(2)}
+                      {formatPrice(recommendedPaidResource.price)}
                     </span>
                     <button
                       onClick={() => addToCart(recommendedPaidResource)}

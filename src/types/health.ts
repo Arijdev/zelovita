@@ -28,6 +28,8 @@ export interface PurchaseHistoryItem {
     title: string;
     price: number;
     coverImage: string;
+    appointmentDate?: string;
+    appointmentTime?: string;
   }[];
   totalPaid: number;
   paymentMethod: string;
@@ -112,10 +114,9 @@ export interface ConsultationPackage {
   id: string;
   title: string;
   duration: string;
+  durationMinutes: 15 | 30 | 60;
   price: number;
-  popular?: boolean;
   description: string;
-  features: string[];
 }
 
 export interface Testimonial {

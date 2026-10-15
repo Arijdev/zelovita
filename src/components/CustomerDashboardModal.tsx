@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
+import { useCountryCurrency } from '@/context/CountryCurrencyContext';
 import { useCart } from '@/context/CartContext';
 import { 
   X, 
@@ -22,6 +23,7 @@ import {
 } from 'lucide-react';
 
 export const CustomerDashboardModal: React.FC = () => {
+  const { formatPrice } = useCountryCurrency();
   const { 
     user, 
     isCustomerDashboardOpen, 
@@ -319,7 +321,7 @@ export const CustomerDashboardModal: React.FC = () => {
                         </div>
                         <div className="text-right">
                           <span className="text-base font-extrabold text-slate-900 dark:text-white">
-                            ${order.totalPaid.toFixed(2)}
+                            {formatPrice(order.totalPaid)}
                           </span>
                           <span className="text-[10px] block text-emerald-600 font-bold">
                             PAID • INSTANT DISPATCH
@@ -335,6 +337,11 @@ export const CustomerDashboardModal: React.FC = () => {
                               <span className="font-semibold text-slate-800 dark:text-slate-200 truncate max-w-sm">
                                 • {it.title}
                               </span>
+                              {it.appointmentDate && it.appointmentTime ? (
+                                <span className="text-[11px] text-slate-500">
+                                  {it.appointmentDate} at {it.appointmentTime}
+                                </span>
+                              ) : null}
                               {resObj && (
                                 <button
                                   onClick={() => downloadResourceDoc(resObj)}

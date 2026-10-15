@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
+import { useCountryCurrency } from '@/context/CountryCurrencyContext';
 import { HealthResource } from '@/types/health';
 import { 
   X, 
@@ -25,6 +26,7 @@ import {
 } from 'lucide-react';
 
 export const InteractiveReaderModal: React.FC = () => {
+  const { formatPrice } = useCountryCurrency();
   const { 
     activeReaderResource: resource, 
     closeReader, 
@@ -267,7 +269,7 @@ export const InteractiveReaderModal: React.FC = () => {
                     }}
                     className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow transition-all"
                   >
-                    Unlock for ${resource.price.toFixed(2)}
+                    Unlock for {formatPrice(resource.price)}
                   </button>
                 </div>
               </div>
@@ -363,7 +365,7 @@ export const InteractiveReaderModal: React.FC = () => {
                         className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-sm shadow-lg shadow-emerald-500/30 transition-all flex items-center justify-center gap-2"
                       >
                         <ShoppingBag className="w-4 h-4" />
-                        <span>Add to Cart — ${resource.price.toFixed(2)}</span>
+                        <span>Add to Cart — {formatPrice(resource.price)}</span>
                       </button>
                     </div>
                   </div>

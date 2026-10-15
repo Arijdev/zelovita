@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { HEALTH_RESOURCES, HEALTH_ARTICLES } from '@/data/healthData';
 import { useCart } from '@/context/CartContext';
+import { useCountryCurrency } from '@/context/CountryCurrencyContext';
 import { 
   Search, 
   X, 
@@ -27,6 +28,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   onSelectResourceSearch 
 }) => {
   const { openReader, addToCart } = useCart();
+  const { formatPrice } = useCountryCurrency();
   const [query, setQuery] = useState('');
 
   if (!isOpen) return null;
@@ -121,7 +123,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                         <span className={`text-[9px] font-bold uppercase px-1.5 py-0.2 rounded ${
                           r.isFree ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200'
                         }`}>
-                          {r.isFree ? 'Free PDF' : `$${r.price.toFixed(2)}`}
+                          {r.isFree ? 'Free PDF' : formatPrice(r.price)}
                         </span>
                       </div>
                       <h5 className="text-xs font-bold text-slate-900 dark:text-white truncate">

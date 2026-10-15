@@ -10,7 +10,7 @@ A modern, high-performance, full-stack digital health platform and e-commerce cl
 - **Digital Guides & Protocols**: Evidence-based metabolic, longevity, and clinical PDFs.
 - **Dynamic PDF Generator & Secure Delivery**: Server-side PDF rendering using `pdfkit` and dynamic watermarking/download streaming via `/api/download`.
 - **In-Browser PDF Viewer**: Built-in interactive document preview with zoom, rotation, page jumping, and pagination using `pdfjs-dist`.
-- **Cart & Instant Checkout**: Persistent cart context with localStorage synchronization, promo code support, order summaries, and mock/live checkout workflows.
+- **Cart & PayPal Checkout**: Persistent cart context, promo codes, server-verified PayPal sandbox payments, and purchase history.
 
 ### 🩺 Interactive Clinical Health Tools
 - **Health Calculators**:
@@ -19,7 +19,7 @@ A modern, high-performance, full-stack digital health platform and e-commerce cl
   - Body Fat Percentage Calculator
   - Water Intake & Hydration Recommendations
 - **60-Second Health Assessment Quiz**: Step-by-step diagnostic questionnaire providing customized health scorecards and recommended protocols.
-- **Consultation Booking Engine**: Slot picker, timezone adjustment, patient symptom intake, and booking confirmation flow.
+- **Consultation Booking Engine**: Authenticated 15/30/60-minute booking, duration-matched IST slots, PayPal payment, and account history.
 
 ### 🔐 Authentication & Patient Portal
 - **Supabase Auth**: Email/Password, Magic Link OTP verification, and Google OAuth support.
@@ -108,14 +108,21 @@ NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+PAYPAL_MODE=sandbox
+PAYPAL_CLIENT_ID=your_sandbox_client_id
+PAYPAL_CLIENT_SECRET=your_sandbox_client_secret
 ```
+
+Keep `PAYPAL_CLIENT_SECRET` server-only. Create a sandbox REST app and test buyer in the PayPal Developer Dashboard. PayPal order amounts are charged in USD; local currency is a display estimate.
 
 ### 4. Database Setup
 
-Execute the SQL script located in [`SUPABASE_SETUP.sql`](./SUPABASE_SETUP.sql) inside your Supabase SQL Editor. This will provision:
+For a new project, execute [`SUPABASE_SETUP.sql`](./SUPABASE_SETUP.sql) inside the Supabase SQL Editor. For an existing project, run the additive [`PAYPAL_SETUP.sql`](./PAYPAL_SETUP.sql) migration instead. The setup provisions:
 - `resources` table (Health guides, pricing, ratings, download links)
-- `orders` & `user_profiles` tables
+- `purchases`, `payment_orders`, and user profiles
 - Storage buckets (`guides-pdf`) with appropriate RLS policies
+
+The script also adds the `payment_orders` table and paid-consultation ownership columns used by PayPal. Existing projects must rerun the script after deploying this payment flow.
 
 ### 5. Running the Application
 

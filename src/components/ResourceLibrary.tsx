@@ -26,6 +26,7 @@ import {
 
 import { useAuth } from '@/context/AuthContext';
 import { PdfPreviewModal } from './PdfPreviewModal';
+import { useCountryCurrency } from '@/context/CountryCurrencyContext';
 
 interface ResourceLibraryProps {
   searchQuery?: string;
@@ -36,6 +37,7 @@ export const ResourceLibrary: React.FC<ResourceLibraryProps> = ({
   searchQuery: externalQuery = '', 
   onClearSearch 
 }) => {
+  const { formatPrice } = useCountryCurrency();
   const { resources, addToCart, isResourceUnlocked, openReader, downloadResourceDoc } = useCart();
   const { isDoctor, setIsDoctorPortalOpen, isAuthenticated } = useAuth();
   const [internalQuery, setInternalQuery] = useState('');
@@ -292,49 +294,46 @@ export const ResourceLibrary: React.FC<ResourceLibraryProps> = ({
                     </div>
 
                     {/* Price & Action Area */}
-                    <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          {resource.isFree ? (
-                            <div className="flex items-baseline gap-1.5">
+                    <div className="space-y-3 border-t border-slate-100 pt-4 dark:border-slate-800">
+                      <div className="min-w-0">
+                        {resource.isFree ? (
+                          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                               <span className="text-xl font-extrabold text-emerald-600 dark:text-emerald-400">
                                 FREE
                               </span>
                               <span className="text-xs text-slate-400 line-through">
-                                ${resource.originalPrice?.toFixed(2)}
+                                {formatPrice(resource.originalPrice || 0)}
                               </span>
-                            </div>
-                          ) : (
-                            <div className="flex items-baseline gap-2">
-                              <span className="text-2xl font-extrabold text-slate-900 dark:text-white">
-                                ${resource.price.toFixed(2)}
+                          </div>
+                        ) : (
+                          <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+                            <span className="text-xl font-extrabold text-slate-900 dark:text-white sm:text-2xl">
+                              {formatPrice(resource.price)}
+                            </span>
+                            {resource.originalPrice && (
+                              <span className="text-xs text-slate-400 line-through">
+                                {formatPrice(resource.originalPrice)}
                               </span>
-                              {resource.originalPrice && (
-                                <span className="text-xs text-slate-400 line-through">
-                                  ${resource.originalPrice.toFixed(2)}
-                                </span>
-                              )}
-                              <span className="text-[10px] font-bold px-1.5 py-0.5 bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-300 rounded">
-                                SAVE 50%
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
-                        <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                            )}
+                            <span className="rounded bg-rose-100 px-1.5 py-0.5 text-[10px] font-bold text-rose-600 dark:bg-rose-950 dark:text-rose-300">
+                              SAVE 50%
+                            </span>
+                          </div>
+                        )}
+                        <p className="mt-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
                           Digital PDF + Web Reader
-                        </span>
+                        </p>
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-2">
                         {/* Button 1: Read Online / Preview */}
                         <button
                           onClick={() => openReader(resource)}
-                          className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold transition-colors"
+                          className="flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-xl bg-slate-100 px-2 py-2.5 text-xs font-semibold text-slate-800 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 sm:px-3"
                         >
                           <BookOpen className="w-3.5 h-3.5" />
-                          <span>{unlocked ? 'Read Full' : 'Read Preview'}</span>
+                            <span className="text-center leading-tight">{unlocked ? 'Read Full' : 'Read Preview'}</span>
                         </button>
 
                         {/* Button 2: Free Download OR Add to Cart / Unlocked Download */}
@@ -342,7 +341,7 @@ export const ResourceLibrary: React.FC<ResourceLibraryProps> = ({
                           <button
                             onClick={() => downloadResourceDoc(resource)}
                             disabled={!isAuthenticated}
-                            className={`flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-white text-xs font-bold shadow-md active:scale-95 transition-all ${
+                            className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-xl px-2 py-2.5 text-xs font-bold text-white shadow-md transition-all active:scale-95 sm:px-3 ${
                               isAuthenticated
                                 ? 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20'
                                 : 'bg-slate-300 dark:bg-slate-600 cursor-not-allowed opacity-70'
@@ -350,14 +349,14 @@ export const ResourceLibrary: React.FC<ResourceLibraryProps> = ({
                             title={isAuthenticated ? '' : 'Please log in to download'}
                           >
                             <Download className="w-3.5 h-3.5" />
-                            <span>{isAuthenticated ? 'Download PDF' : 'Login to Download'}</span>
-                            {!isAuthenticated && <Lock className="w-3.5 h-3.5" />}
+                            <span className="text-center leading-tight">{isAuthenticated ? 'Download PDF' : 'Sign in to download'}</span>
+                            {!isAuthenticated && <Lock className="w-3.5 h-3.5 shrink-0" />}
                           </button>
                         ) : unlocked ? (
                           <button
                             onClick={() => downloadResourceDoc(resource)}
                             disabled={!isAuthenticated}
-                            className={`flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-white text-xs font-bold shadow-md active:scale-95 transition-all ${
+                            className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-xl px-2 py-2.5 text-xs font-bold text-white shadow-md transition-all active:scale-95 sm:px-3 ${
                               isAuthenticated
                                 ? 'bg-teal-600 hover:bg-teal-700'
                                 : 'bg-slate-300 dark:bg-slate-600 cursor-not-allowed opacity-70'
@@ -365,14 +364,14 @@ export const ResourceLibrary: React.FC<ResourceLibraryProps> = ({
                             title={isAuthenticated ? '' : 'Please log in to download'}
                           >
                             <Download className="w-3.5 h-3.5" />
-                            <span>{isAuthenticated ? 'Download' : 'Login to Download'}</span>
-                            {!isAuthenticated && <Lock className="w-3.5 h-3.5" />}
+                            <span className="text-center leading-tight">{isAuthenticated ? 'Download' : 'Sign in to download'}</span>
+                            {!isAuthenticated && <Lock className="w-3.5 h-3.5 shrink-0" />}
                           </button>
                         ) : (
                           <button
                             onClick={() => addToCart(resource)}
                             disabled={!isAuthenticated}
-                            className={`flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-white text-xs font-bold shadow-md active:scale-95 transition-all ${
+                            className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-xl px-2 py-2.5 text-xs font-bold text-white shadow-md transition-all active:scale-95 sm:px-3 ${
                               isAuthenticated
                                 ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-emerald-600/25'
                                 : 'bg-slate-300 dark:bg-slate-600 cursor-not-allowed opacity-70'
@@ -380,8 +379,8 @@ export const ResourceLibrary: React.FC<ResourceLibraryProps> = ({
                             title={isAuthenticated ? '' : 'Please log in to add to cart'}
                           >
                             <ShoppingBag className="w-3.5 h-3.5" />
-                            <span>{isAuthenticated ? 'Add to Cart' : 'Login to Add'}</span>
-                            {!isAuthenticated && <Lock className="w-3.5 h-3.5" />}
+                            <span className="text-center leading-tight">{isAuthenticated ? 'Add to Cart' : 'Sign in to buy'}</span>
+                            {!isAuthenticated && <Lock className="w-3.5 h-3.5 shrink-0" />}
                           </button>
                         )}
                       </div>

@@ -1,52 +1,32 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 import { supabase } from '@/lib/supabase';
 import { HealthResource } from '@/types/health';
 import {
-  X, Stethoscope, Upload, Plus, DollarSign, Sparkles,
+  X, Stethoscope, Upload, Plus, Sparkles,
   CheckCircle2, BookOpen, Trash2, TrendingUp, LogOut,
-  FileText, Eye, Gift, Loader2, Image as ImageIcon, AlertCircle,
-  RefreshCw, Users, Calendar, Edit3
+  FileText, Gift, Loader2, Image as ImageIcon, AlertCircle,
+  RefreshCw, Edit3
 } from 'lucide-react';
-
-// ─── File Upload Helper ───────────────────────────────────────────────────────
-async function uploadToSupabase(
-  file: File,
-  bucket: 'pdfs' | 'thumbnails',
-  fileName: string
-): Promise<{ url: string | null; error: string | null }> {
-  const { error: uploadError } = await supabase.storage
-    .from(bucket)
-    .upload(fileName, file, { upsert: true, contentType: file.type });
-
-  if (uploadError) {
-    return { url: null, error: uploadError.message };
-  }
-
-  if (bucket === 'thumbnails') {
-    const { data } = supabase.storage.from(bucket).getPublicUrl(fileName);
-    return { url: data.publicUrl, error: null };
-  } else {
-    // For PDFs, generate a signed URL (valid 1 hour - for preview)
-    const { data, error } = await supabase.storage
-      .from(bucket)
-      .createSignedUrl(fileName, 3600);
-    if (error) return { url: null, error: error.message };
-    return { url: data.signedUrl, error: null };
-  }
-}
 
 // ─── Analytics Stats ──────────────────────────────────────────────────────────
 const ANALYTICS_STATS = [
-  { value: '54,820', label: 'Free Downloads', color: 'emerald' },
-  { value: '$48,290', label: 'Total eBook Sales', color: 'teal' },
-  { value: '12,480', label: 'Verified Patients', color: 'cyan' },
-  { value: '4.96 ★', label: 'Average Rating', color: 'indigo' },
+  { value: '54,820', label: 'Free Downloads', color: 'emerald', cardClass: 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800', textClass: 'text-emerald-700 dark:text-emerald-300' },
+  { value: '$48,290', label: 'Total eBook Sales (USD)', color: 'teal', cardClass: 'bg-teal-50 dark:bg-teal-950/40 border-teal-200 dark:border-teal-800', textClass: 'text-teal-700 dark:text-teal-300' },
+  { value: '12,480', label: 'Verified Patients', color: 'cyan', cardClass: 'bg-cyan-50 dark:bg-cyan-950/40 border-cyan-200 dark:border-cyan-800', textClass: 'text-cyan-700 dark:text-cyan-300' },
+  { value: '4.96 ★', label: 'Average Rating', color: 'indigo', cardClass: 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800', textClass: 'text-indigo-700 dark:text-indigo-300' },
 ];
+
+const getNewGuideId = () => `doc_guide_${Date.now().toString(36)}`;
+const getPublishedDate = () => new Date().toLocaleDateString('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+});
 
 // ─── DoctorPortalModal ────────────────────────────────────────────────────────
 export const DoctorPortalModal: React.FC = () => {
@@ -273,7 +253,7 @@ export const DoctorPortalModal: React.FC = () => {
 
     // Add to local cart context for immediate display
     const newResource: HealthResource = {
-      id: dbResource?.id || 'doc_guide_' + Date.now().toString(36),
+      id: dbResource?.id || getNewGuideId(),
       title: resourceData.title,
       subtitle: resourceData.subtitle,
       category: resourceData.category as HealthResource['category'],
@@ -293,7 +273,7 @@ export const DoctorPortalModal: React.FC = () => {
       tableOfContents: resourceData.table_of_contents,
       fullContent: resourceData.full_content as HealthResource['fullContent'],
       uploadedBy: 'Dr. Arif Chowdhury',
-      publishedAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      publishedAt: getPublishedDate(),
     };
 
     addCustomResource(newResource);
@@ -790,8 +770,8 @@ export const DoctorPortalModal: React.FC = () => {
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {ANALYTICS_STATS.map((stat, i) => (
-                  <div key={i} className={`p-4 rounded-2xl bg-${stat.color}-50 dark:bg-${stat.color}-950/40 border border-${stat.color}-200 dark:border-${stat.color}-800 text-center`}>
-                    <span className={`text-2xl font-extrabold text-${stat.color}-700 dark:text-${stat.color}-300`}>{stat.value}</span>
+                  <div key={i} className={`p-4 rounded-2xl border text-center ${stat.cardClass}`}>
+                    <span className={`text-2xl font-extrabold ${stat.textClass}`}>{stat.value}</span>
                     <span className="text-xs font-bold block text-slate-700 dark:text-slate-300 mt-1">{stat.label}</span>
                   </div>
                 ))}

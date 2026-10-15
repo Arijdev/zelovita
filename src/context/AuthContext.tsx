@@ -57,8 +57,8 @@ interface AuthContextType {
   // History
   downloadHistory: DownloadHistoryItem[];
   purchaseHistory: PurchaseHistoryItem[];
+  refreshHistory: () => Promise<void>;
   recordDownload: (resource: HealthResource) => Promise<void>;
-  recordPurchase: (purchase: PurchaseHistoryItem) => Promise<void>;
 
   // Modals
   isCustomerDashboardOpen: boolean;
@@ -179,6 +179,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.error('Error loading history:', err);
     }
   }, []);
+
+  const refreshHistory = useCallback(async () => {
+    if (session?.user) await loadHistory(session.user.id);
+  }, [loadHistory, session]);
 
   // ── Open the set-new-password form after a recovery-link redirect ────────────
   const promptPasswordReset = useCallback((supabaseUser: SupabaseUser | null) => {
@@ -510,25 +514,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  // ── Record Purchase ───────────────────────────────────────────────────────────
-  const recordPurchase = async (purchase: PurchaseHistoryItem) => {
-    setPurchaseHistory(prev => [purchase, ...prev]);
-
-    if (!session?.user) return;
-
-    try {
-      await supabase.from('purchases').insert({
-        user_id: session.user.id,
-        order_id: purchase.orderId,
-        items: purchase.items,
-        total_paid: purchase.totalPaid,
-        payment_method: purchase.paymentMethod,
-      });
-    } catch (err) {
-      console.error('Error recording purchase:', err);
-    }
-  };
-
   const role: UserRole = user ? user.role : 'guest';
   const isAuthenticated = !!user;
   const isDoctor = role === 'doctor';
@@ -558,8 +543,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         logout,
         downloadHistory,
         purchaseHistory,
+        refreshHistory,
         recordDownload,
-        recordPurchase,
         isCustomerDashboardOpen,
         setIsCustomerDashboardOpen,
         isDoctorPortalOpen,

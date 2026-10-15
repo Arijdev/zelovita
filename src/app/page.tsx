@@ -66,7 +66,52 @@ const features = [
     href: '/about',
     color: 'amber',
   },
-];
+] as const;
+
+const featureStyles = {
+  emerald: {
+    card: 'hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-500/10',
+    bar: 'from-emerald-500 to-emerald-400',
+    icon: 'bg-emerald-100 dark:bg-emerald-950/30',
+    iconText: 'text-emerald-600 dark:text-emerald-400',
+    title: 'group-hover:text-emerald-600 dark:group-hover:text-emerald-400',
+  },
+  teal: {
+    card: 'hover:border-teal-500/50 hover:shadow-xl hover:shadow-teal-500/10',
+    bar: 'from-teal-500 to-teal-400',
+    icon: 'bg-teal-100 dark:bg-teal-950/30',
+    iconText: 'text-teal-600 dark:text-teal-400',
+    title: 'group-hover:text-teal-600 dark:group-hover:text-teal-400',
+  },
+  cyan: {
+    card: 'hover:border-cyan-500/50 hover:shadow-xl hover:shadow-cyan-500/10',
+    bar: 'from-cyan-500 to-cyan-400',
+    icon: 'bg-cyan-100 dark:bg-cyan-950/30',
+    iconText: 'text-cyan-600 dark:text-cyan-400',
+    title: 'group-hover:text-cyan-600 dark:group-hover:text-cyan-400',
+  },
+  indigo: {
+    card: 'hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/10',
+    bar: 'from-indigo-500 to-indigo-400',
+    icon: 'bg-indigo-100 dark:bg-indigo-950/30',
+    iconText: 'text-indigo-600 dark:text-indigo-400',
+    title: 'group-hover:text-indigo-600 dark:group-hover:text-indigo-400',
+  },
+  rose: {
+    card: 'hover:border-rose-500/50 hover:shadow-xl hover:shadow-rose-500/10',
+    bar: 'from-rose-500 to-rose-400',
+    icon: 'bg-rose-100 dark:bg-rose-950/30',
+    iconText: 'text-rose-600 dark:text-rose-400',
+    title: 'group-hover:text-rose-600 dark:group-hover:text-rose-400',
+  },
+  amber: {
+    card: 'hover:border-amber-500/50 hover:shadow-xl hover:shadow-amber-500/10',
+    bar: 'from-amber-500 to-amber-400',
+    icon: 'bg-amber-100 dark:bg-amber-950/30',
+    iconText: 'text-amber-600 dark:text-amber-400',
+    title: 'group-hover:text-amber-600 dark:group-hover:text-amber-400',
+  },
+} as const;
 
 const trustMarkers = [
   { icon: Users, value: '12,480+', label: 'Patients Guided', desc: 'Across 42+ Countries' },
@@ -101,34 +146,38 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, index) => (
-              <Link
-                key={feature.title}
-                href={feature.href}
-                className={`group relative p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-${feature.color}-500/50 hover:shadow-xl hover:shadow-${feature.color}-500/10 transition-all duration-300 overflow-hidden`}
-              >
-                <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-${feature.color}-500 to-${feature.color}-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left`} />
+            {features.map((feature) => {
+              const style = featureStyles[feature.color];
 
-                <div className="relative space-y-4">
-                  <div className={`w-14 h-14 rounded-xl bg-${feature.color}-100 dark:bg-${feature.color}-950/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                    <feature.icon className={`w-7 h-7 text-${feature.color}-600 dark:text-${feature.color}-400`} />
-                  </div>
+              return (
+                <Link
+                  key={feature.title}
+                  href={feature.href}
+                  className={`group relative p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 ${style.card} transition-all duration-300 overflow-hidden`}
+                >
+                  <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${style.bar} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left`} />
 
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                    {feature.title}
-                  </h3>
+                  <div className="relative space-y-4">
+                    <div className={`w-14 h-14 rounded-xl ${style.icon} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                      <feature.icon className={`w-7 h-7 ${style.iconText}`} />
+                    </div>
+
+                    <h3 className={`text-xl font-bold text-slate-900 dark:text-white ${style.title} transition-colors`}>
+                      {feature.title}
+                    </h3>
 
                   <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
                     {feature.description}
                   </p>
 
-                  <div className="flex items-center gap-2 text-sm font-semibold text-emerald-600 dark:text-emerald-400 pt-2">
-                    <span>Explore →</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <div className="flex items-center gap-2 text-sm font-semibold text-emerald-600 dark:text-emerald-400 pt-2">
+                      <span>Explore →</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
