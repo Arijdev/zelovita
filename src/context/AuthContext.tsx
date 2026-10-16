@@ -49,9 +49,10 @@ interface AuthContextType {
   resetPassword: (email: string) => Promise<{ error: string | null }>;
   updatePassword: (password: string) => Promise<{ error: string | null }>;
   signUpWithPassword: (name: string, email: string, password: string, phone?: string) => Promise<{ error: string | null; needsOtp?: boolean }>;
-  verifyOtp: (email: string, token: string, password?: string, fullName?: string, role?: string) => Promise<{ error: string | null }>;
+  verifyOtp: (email: string, token: string, fullName?: string, phone?: string) => Promise<{ error: string | null }>;
   signInWithGoogle: () => Promise<{ error: string | null }>;
   signInAsDoctor: (email: string, password: string) => Promise<{ error: string | null }>;
+  updateProfile: (fullName: string, avatarFile?: File | null) => Promise<{ error: string | null }>;
   logout: () => Promise<void>;
 
   // History
@@ -356,12 +357,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // ── OTP Verification (for email confirmation + signup completion) ──────────────
-  const verifyOtp = async (email: string, token: string, password?: string, fullName?: string, role?: string): Promise<{ error: string | null }> => {
+  const verifyOtp = async (email: string, token: string, fullName?: string, phone?: string): Promise<{ error: string | null }> => {
     try {
       const response = await fetch('/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, token, password, fullName, role }),
+        body: JSON.stringify({ email, token, fullName, phone }),
       });
 
       const data = await response.json();
@@ -463,6 +464,48 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return { error: 'Authentication failed.' };
   };
 
+  const updateProfile = async (fullName: string, avatarFile?: File | null): Promise<{ error: string | null }> => {
+    if (!session?.user || !user) return { error: 'Sign in to edit your profile.' };
+
+    const normalizedName = fullName.trim();
+    if (!normalizedName) return { error: 'Enter your name.' };
+    if (normalizedName.length > 80) return { error: 'Name must be 80 characters or less.' };
+    if (avatarFile && !['image/jpeg', 'image/png', 'image/webp'].includes(avatarFile.type)) {
+      return { error: 'Choose a JPG, PNG, or WebP image.' };
+    }
+    if (avatarFile && avatarFile.size > 5 * 1024 * 1024) {
+      return { error: 'Profile photos must be 5 MB or smaller.' };
+    }
+
+    let avatarUrl = user.avatar || null;
+    if (avatarFile) {
+      const extension = avatarFile.type === 'image/png' ? 'png' : avatarFile.type === 'image/webp' ? 'webp' : 'jpg';
+      const filePath = `${session.user.id}/profile-${Date.now()}.${extension}`;
+      const { data: uploaded, error: uploadError } = await supabase.storage
+        .from('thumbnails')
+        .upload(filePath, avatarFile, { contentType: avatarFile.type, cacheControl: '3600', upsert: false });
+
+      if (uploadError) return { error: `Could not upload photo: ${uploadError.message}` };
+      const { data: publicUrl } = supabase.storage.from('thumbnails').getPublicUrl(uploaded.path);
+      avatarUrl = publicUrl.publicUrl;
+    }
+
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({ full_name: normalizedName, avatar_url: avatarUrl })
+      .eq('id', session.user.id);
+
+    if (profileError) return { error: profileError.message };
+
+    const { error: authError } = await supabase.auth.updateUser({
+      data: { full_name: normalizedName, avatar_url: avatarUrl },
+    });
+    if (authError) console.error('Could not sync profile metadata:', authError.message);
+
+    setUser({ ...user, name: normalizedName, avatar: avatarUrl || undefined });
+    return { error: null };
+  };
+
   // ── Logout ────────────────────────────────────────────────────────────────────
   const logout = async () => {
     await supabase.auth.signOut();
@@ -540,6 +583,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         verifyOtp,
         signInWithGoogle,
         signInAsDoctor,
+        updateProfile,
         logout,
         downloadHistory,
         purchaseHistory,

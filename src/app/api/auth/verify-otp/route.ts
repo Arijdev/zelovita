@@ -3,7 +3,7 @@ import { createSupabaseServerClient } from '@/lib/supabase-server';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, token, password, fullName, role } = await request.json();
+    const { email, token, fullName, phone } = await request.json();
 
     if (!email || !token) {
       return NextResponse.json(
@@ -18,20 +18,20 @@ export async function POST(request: NextRequest) {
     const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
       email,
       token,
-      type: 'email',
+      type: 'signup',
     });
 
     if (verifyError) {
       return NextResponse.json({ error: verifyError.message }, { status: 400 });
     }
 
-    // If this was a signup (password provided), update the user's password
-    if (password && verifyData.user) {
+    // Set optional profile fields after Supabase confirms the signup code.
+    if (verifyData.user && (fullName || phone)) {
       const { error: updateError } = await supabase.auth.updateUser({
-        password,
         data: {
           full_name: fullName || email.split('@')[0],
-          role: role || 'customer',
+          phone: phone || '',
+          role: 'customer',
         },
       });
 

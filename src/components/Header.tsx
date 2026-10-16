@@ -197,8 +197,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMyLibrary, onOpenSearch })
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Brand / Doctor Title */}
-          <Link href="/" className="group flex min-w-0 items-center gap-2 sm:flex-shrink-0 sm:gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-500 text-white shadow-md shadow-emerald-500/20 transition-transform group-hover:scale-105 sm:h-10 sm:w-10">
+          <Link href="/" className="group flex min-w-0 items-center gap-2 sm:shrink-0 sm:gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-tr from-emerald-600 via-teal-500 to-cyan-500 text-white shadow-md shadow-emerald-500/20 transition-transform group-hover:scale-105 sm:h-10 sm:w-10">
               <HeartPulse className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" />
             </div>
             <div className="flex min-w-0 flex-col">
@@ -289,6 +289,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMyLibrary, onOpenSearch })
                         src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80'}
                         alt={user.name}
                         fill
+                        unoptimized
                         className="object-cover"
                       />
                     </div>
@@ -316,7 +317,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMyLibrary, onOpenSearch })
             <button
               onClick={() => setIsCartOpen(true)}
               aria-label="Shopping Cart"
-              className="relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-sm shadow-md shadow-emerald-600/25 hover:from-emerald-700 hover:to-teal-700 active:scale-95 transition-all"
+              className="relative flex items-center gap-1.5 rounded-xl bg-linear-to-r from-emerald-600 to-teal-600 px-2.5 py-2 text-sm font-bold text-white shadow-md shadow-emerald-600/25 transition-all hover:from-emerald-700 hover:to-teal-700 active:scale-95 sm:gap-2 sm:px-3.5"
             >
               <ShoppingBag className="w-4 h-4" />
               <span className="hidden sm:inline">Cart</span>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { useCountryCurrency } from '@/context/CountryCurrencyContext';
@@ -19,7 +19,10 @@ import {
   Sparkles,
   Printer,
   ShoppingBag,
-  HeartPulse
+  HeartPulse,
+  Camera,
+  Pencil,
+  Save
 } from 'lucide-react';
 
 export const CustomerDashboardModal: React.FC = () => {
@@ -30,7 +33,8 @@ export const CustomerDashboardModal: React.FC = () => {
     setIsCustomerDashboardOpen, 
     logout, 
     downloadHistory, 
-    purchaseHistory 
+    purchaseHistory,
+    updateProfile,
   } = useAuth();
   
   const { 
@@ -41,6 +45,18 @@ export const CustomerDashboardModal: React.FC = () => {
   } = useCart();
 
   const [activeTab, setActiveTab] = useState<'library' | 'downloads' | 'orders' | 'profile'>('library');
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editName, setEditName] = useState(user?.name || '');
+  const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState('');
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileError, setProfileError] = useState('');
+  const [profileSaved, setProfileSaved] = useState(false);
+
+  useEffect(() => {
+    if (!photoPreview.startsWith('blob:')) return;
+    return () => URL.revokeObjectURL(photoPreview);
+  }, [photoPreview]);
 
   if (!isCustomerDashboardOpen || !user) return null;
 
@@ -48,18 +64,45 @@ export const CustomerDashboardModal: React.FC = () => {
     r.isFree || unlockedResources.includes(r.id)
   );
 
+  const cancelProfileEdit = () => {
+    setEditName(user.name);
+    setSelectedPhoto(null);
+    setPhotoPreview('');
+    setProfileError('');
+    setProfileSaved(false);
+    setIsEditingProfile(false);
+  };
+
+  const saveProfile = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setProfileSaving(true);
+    setProfileError('');
+    setProfileSaved(false);
+    const { error: saveError } = await updateProfile(editName, selectedPhoto);
+    setProfileSaving(false);
+    if (saveError) {
+      setProfileError(saveError);
+      return;
+    }
+    setProfileSaved(true);
+    setSelectedPhoto(null);
+    setPhotoPreview('');
+    setIsEditingProfile(false);
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-fadeIn overflow-y-auto">
       <div className="relative w-full max-w-4xl bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 my-auto">
         
         {/* Top Header */}
-        <div className="p-6 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 text-white flex items-center justify-between">
+        <div className="p-6 bg-linear-to-r from-emerald-600 via-teal-600 to-cyan-700 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/60 shadow shrink-0">
               <Image
                 src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80'}
                 alt={user.name}
                 fill
+                unoptimized
                 className="object-cover"
               />
             </div>
@@ -365,6 +408,111 @@ export const CustomerDashboardModal: React.FC = () => {
           {/* TAB 4: PATIENT PROFILE */}
           {activeTab === 'profile' && (
             <div className="space-y-6">
+              <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-800/60">
+                <div className="mb-5 flex items-center justify-between gap-3">
+                  <div>
+                    <h4 className="text-base font-bold text-slate-900 dark:text-white">Profile details</h4>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Update your display name and profile photo.</p>
+                  </div>
+                  {!isEditingProfile && (
+                    <button
+                      type="button"
+                      onClick={() => { setEditName(user.name); setProfileError(''); setProfileSaved(false); setIsEditingProfile(true); }}
+                      className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-emerald-500 hover:text-emerald-700 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:text-emerald-400"
+                    >
+                      <Pencil className="h-4 w-4" />
+                      <span>Edit profile</span>
+                    </button>
+                  )}
+                </div>
+
+                {isEditingProfile ? (
+                  <form onSubmit={saveProfile} className="space-y-5">
+                    <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+                      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-white bg-slate-200 shadow dark:border-slate-700 dark:bg-slate-700">
+                        <Image
+                          src={photoPreview || user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&auto=format&fit=crop&q=80'}
+                          alt="Profile photo preview"
+                          fill
+                          sizes="80px"
+                          unoptimized
+                          className="object-cover"
+                        />
+                      </div>
+                      <div>
+                        <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-emerald-500 hover:text-emerald-700 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:text-emerald-400">
+                          <Camera className="h-4 w-4" />
+                          <span>Choose photo</span>
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            className="sr-only"
+                            onChange={(event) => {
+                              const file = event.target.files?.[0] || null;
+                              setSelectedPhoto(file);
+                              setPhotoPreview(file ? URL.createObjectURL(file) : '');
+                              setProfileError('');
+                            }}
+                          />
+                        </label>
+                        <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">JPG, PNG, or WebP. Maximum 5 MB.</p>
+                        {selectedPhoto ? <p className="mt-1 max-w-xs truncate text-xs text-slate-600 dark:text-slate-300">{selectedPhoto.name}</p> : null}
+                      </div>
+                    </div>
+
+                    <label className="block max-w-xl text-sm font-medium text-slate-700 dark:text-slate-200">
+                      Display name
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(event) => setEditName(event.target.value)}
+                        maxLength={80}
+                        required
+                        className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-emerald-500 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
+                      />
+                    </label>
+
+                    {profileError ? <p role="alert" className="text-sm text-rose-600 dark:text-rose-400">{profileError}</p> : null}
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="submit"
+                        disabled={profileSaving}
+                        className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        <Save className="h-4 w-4" />
+                        <span>{profileSaving ? 'Saving…' : 'Save changes'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        disabled={profileSaving}
+                        onClick={cancelProfileEdit}
+                        className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:opacity-60 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-700"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                    <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-white bg-slate-200 shadow dark:border-slate-700 dark:bg-slate-700">
+                      <Image
+                        src={user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&auto=format&fit=crop&q=80'}
+                        alt={user.name}
+                        fill
+                          unoptimized
+                        sizes="80px"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="wrap-break-word text-lg font-bold text-slate-900 dark:text-white">{user.name}</p>
+                      <p className="break-all text-sm text-slate-500 dark:text-slate-400">{user.email}</p>
+                      {profileSaved ? <p role="status" className="mt-2 text-sm font-medium text-emerald-700 dark:text-emerald-400">Profile updated.</p> : null}
+                    </div>
+                  </div>
+                )}
+              </section>
+
               <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-4">
                 <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />

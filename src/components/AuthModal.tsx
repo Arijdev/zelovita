@@ -136,6 +136,7 @@ export const AuthModal: React.FC = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [otpEmail, setOtpEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');
+  const [otpResendCooldown, setOtpResendCooldown] = useState(0);
 
   // Customer login
   const [loginEmail, setLoginEmail] = useState('');
@@ -173,6 +174,12 @@ export const AuthModal: React.FC = () => {
     setResetPasswordValue('');
     setResetConfirmValue('');
   }, [authModalTab, authModalInitialView, isAuthModalOpen]);
+
+  useEffect(() => {
+    if (otpResendCooldown <= 0) return;
+    const timer = window.setTimeout(() => setOtpResendCooldown((seconds) => seconds - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [otpResendCooldown]);
 
   if (!isAuthModalOpen) return null;
 
@@ -247,7 +254,29 @@ export const AuthModal: React.FC = () => {
     } else if (needsOtp) {
       setOtpEmail(regEmail);
       setOtpSent(true);
-      setSuccess(`A 6-digit verification code has been sent to ${regEmail}. Please check your inbox.`);
+      setOtpResendCooldown(60);
+      setSuccess(`A 6-digit verification code has been sent to ${regEmail}. If the email contains a link instead, the Supabase Confirm signup template needs to use {{ .Token }}.`);
+    }
+  };
+
+  const handleResendSignupOtp = async () => {
+    clearErrors();
+    setLoading(true);
+    try {
+      const response = await fetch('/api/auth/resend-signup-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: otpEmail }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Could not resend the verification code.');
+      setSuccess(result.message || `A new code was requested for ${otpEmail}.`);
+      setOtpCode('');
+      setOtpResendCooldown(60);
+    } catch (resendError) {
+      setError(resendError instanceof Error ? resendError.message : 'Could not resend the verification code.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -256,7 +285,7 @@ export const AuthModal: React.FC = () => {
     e.preventDefault();
     clearErrors();
     setLoading(true);
-    const { error: err } = await verifyOtp(otpEmail, otpCode, regPassword, regName, regPhone);
+    const { error: err } = await verifyOtp(otpEmail, otpCode, regName, regPhone);
     setLoading(false);
     if (err) setError(err);
   };
@@ -665,6 +694,15 @@ export const AuthModal: React.FC = () => {
                 className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CheckCircle2 className="w-4 h-4" /><span>Verify & Activate Account</span></>}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleResendSignupOtp}
+                disabled={loading || otpResendCooldown > 0}
+                className="w-full text-xs font-semibold text-emerald-700 transition-colors hover:text-emerald-900 disabled:cursor-not-allowed disabled:text-slate-400 dark:text-emerald-400 dark:hover:text-emerald-300 dark:disabled:text-slate-500"
+              >
+                {loading ? 'Requesting code…' : otpResendCooldown > 0 ? `Resend code in ${otpResendCooldown}s` : 'Resend verification code'}
               </button>
 
               <button

@@ -124,6 +124,19 @@ For a new project, execute [`SUPABASE_SETUP.sql`](./SUPABASE_SETUP.sql) inside t
 
 The script also adds the `payment_orders` table and paid-consultation ownership columns used by PayPal. Existing projects must rerun the script after deploying this payment flow.
 
+### Email OTP Signup
+
+In Supabase Dashboard, open **Authentication → Email Templates → Confirm signup** and use `{{ .Token }}` in the email body for the numeric code. Do not use `{{ .ConfirmationURL }}` or `{{ .TokenHash }}` for this OTP signup flow. The verification screen accepts the 6-digit signup code.
+
+Example template body:
+
+```html
+<h2>Your Zelovita verification code</h2>
+<p>Enter this 6-digit code in the signup screen:</p>
+<p style="font-size: 28px; font-weight: bold; letter-spacing: 6px">{{ .Token }}</p>
+<p>This code expires according to your Supabase email OTP settings.</p>
+```
+
 ### 5. Running the Application
 
 Start the local development server:
