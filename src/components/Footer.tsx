@@ -149,9 +149,9 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2 text-slate-600 dark:text-slate-400 font-medium">
               <li><a href="#guides" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Free PDF Downloads</a></li>
               <li><a href="#guides" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Premium Health eBooks</a></li>
-              <li><a href="#calculators" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">BMI & Hydration Calculators</a></li>
-              <li><a href="#quiz" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Health Diagnostic Quiz</a></li>
-              <li><a href="#consultation" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">1-on-1 Consultation Booking</a></li>
+              <li><a href="/calculators" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">BMI & Hydration Calculators</a></li>
+              <li><a href="/quiz" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Health Diagnostic Quiz</a></li>
+              <li><a href="/consultation" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">1-on-1 Consultation Booking</a></li>
             </ul>
           </div>
 

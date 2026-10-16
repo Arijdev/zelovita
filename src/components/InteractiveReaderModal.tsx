@@ -462,7 +462,7 @@ export const InteractiveReaderModal: React.FC = () => {
                     Need personalized clinical adjustments?
                   </p>
                   <a
-                    href="#consultation"
+                    href="/consultation"
                     onClick={closeReader}
                     className="inline-block mt-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
                   >

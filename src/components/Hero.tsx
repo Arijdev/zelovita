@@ -85,7 +85,7 @@ export const Hero: React.FC = () => {
               </a>
 
               <a
-                href="#quiz"
+                href="/quiz"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-semibold text-base border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/80 shadow-sm transition-all"
               >
                 <Sparkles className="w-5 h-5 text-amber-500" />
@@ -176,7 +176,7 @@ export const Hero: React.FC = () => {
                     Next slot: Tomorrow
                   </span>
                   <a
-                    href="#consultation"
+                    href="/consultation"
                     className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 flex items-center gap-1"
                   >
                     <span>Book 1-on-1</span>
@@ -208,6 +208,18 @@ export const Hero: React.FC = () => {
               </button>
             </div>
 
+            <div className="relative aspect-video bg-black">
+              <video
+                src="/intro.mp4"
+                controls
+                autoPlay
+                playsInline
+                className="w-full h-full object-cover"
+              >
+                Your browser does not support the video tag.
+              </video>
+            </div>
+
             <div className="p-8 text-center space-y-6">
               <div className="relative w-24 h-24 mx-auto rounded-full overflow-hidden border-2 border-emerald-500 shadow-lg">
                 <Image
@@ -217,19 +229,6 @@ export const Hero: React.FC = () => {
                   sizes="96px"
                   className="object-cover"
                 />
-              </div>
-
-              <div className="space-y-3">
-                <h4 className="text-xl font-bold text-white">
-                  “Welcome to Your Health Transformation”
-                </h4>
-                <p className="text-sm text-slate-300 leading-relaxed max-w-lg mx-auto">
-                  “I founded this Academy because traditional medicine waits until you are sick to treat you. Here, we believe in proactive cellular longevity, gut health restoration, and targeted nutrition that empowers you every single day.”
-                </p>
-              </div>
-
-              <div className="p-4 bg-slate-800/80 rounded-xl border border-slate-700 text-xs text-emerald-400 font-mono">
-                🎬 Video Presentation Session #VHA-01: Available to all Academy members
               </div>
 
               <div className="flex justify-center gap-4">
