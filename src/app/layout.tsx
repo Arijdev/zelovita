@@ -15,6 +15,7 @@ import { AuthModal } from '@/components/AuthModal';
 import { CustomerDashboardModal } from '@/components/CustomerDashboardModal';
 import { DoctorPortalModal } from '@/components/DoctorPortalModal';
 import { ToastContainer } from '@/components/Toast';
+import { Chatbot } from '@/components/Chatbot';
 import { CountryCurrencyProvider } from '@/context/CountryCurrencyContext';
 
 export default function RootLayout({
@@ -76,6 +77,7 @@ export default function RootLayout({
               onClose={() => setIsSearchOpen(false)}
               onSelectResourceSearch={handleSelectSearch}
             />
+            <Chatbot />
             <ToastContainer />
             </CartProvider>
           </AuthProvider>

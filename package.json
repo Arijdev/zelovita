@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@composio/core": "^0.25.0",
+    "@google/generative-ai": "^0.24.1",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
     "@types/pdfkit": "^0.17.6",
