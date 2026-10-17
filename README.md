@@ -36,6 +36,7 @@ A modern, high-performance, full-stack digital health platform and e-commerce cl
 | **Frontend Library** | [React 19](https://react.dev/) |
 | **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) with Vanilla CSS variables |
 | **Database & Auth** | [Supabase](https://supabase.com/) (`@supabase/supabase-js`, `@supabase/ssr`) |
+| **AI** | [Google Gemini](https://ai.google/) (`@google/generative-ai`) |
 | **Icons & UI** | [Lucide React](https://lucide.dev/) & Canvas Confetti |
 | **Document Processing**| `pdfkit`, `pdfjs-dist`, `canvas` |
 | **Language & Tooling** | TypeScript 5, ESLint 9 |
@@ -46,7 +47,8 @@ A modern, high-performance, full-stack digital health platform and e-commerce cl
 
 ```
 health/
-├── public/                     # Static assets and icons
+├── public/                     # Static assets, icons, PDFs, videos
+├── scripts/                    # Maintenance & migration scripts
 ├── src/
 │   ├── app/                    # Next.js App Router
 │   │   ├── about/              # About Dr. Arif Chowdhury page
@@ -77,6 +79,7 @@ health/
 │   ├── context/                # React Contexts (AuthContext, CartContext)
 │   └── lib/                    # Supabase clients & utility helpers
 ├── SUPABASE_SETUP.sql          # Database schema, tables, and storage policies
+├── PAYPAL_SETUP.sql            # Additive PayPal migration
 └── package.json
 ```
 
